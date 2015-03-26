@@ -8,21 +8,50 @@
     <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal"
         android:id="@+id/schwierigkeitsgrad">
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Einfach"/>
+            android:text="Einfach"
+            android:id="@+id/einfach"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mittel"/>
+            android:layout_marginLeft="14dp"
+            android:text="Mittel"
+            android:id="@+id/mittel"/>
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Schwer"/>
+            android:layout_marginLeft="14dp"
+            android:text="Schwer  "
+            android:id="@+id/schwer"/>
 
     </RadioGroup>
+
+    <Button
+
+        android:id="@+id/spielen_btn"
+
+        android:text="Spielen"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#525252"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        android:layout_marginTop="11dp"
+        android:layout_marginRight="29dp"
+        android:layout_marginEnd="29dp"
+        android:layout_below="@+id/schwierigkeitsgrad"
+        android:layout_alignRight="@+id/schwierigkeitsgrad"
+        android:layout_alignEnd="@+id/schwierigkeitsgrad" />
+
 </RelativeLayout>
