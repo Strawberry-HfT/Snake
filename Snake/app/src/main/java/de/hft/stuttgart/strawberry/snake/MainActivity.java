@@ -1,5 +1,7 @@
 package de.hft.stuttgart.strawberry.snake;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -69,7 +71,13 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 DifficultyFragement difficultyFragement = new DifficultyFragement();
-                // TODO Fragmentmanager
+
+                Bundle bundle = new Bundle();
+                difficultyFragement.setArguments(bundle);
+
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                difficultyFragement.show(fragmentTransaction, "test");
             }
         });
 
