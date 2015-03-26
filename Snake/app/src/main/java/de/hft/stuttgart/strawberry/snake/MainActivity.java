@@ -2,6 +2,7 @@ package de.hft.stuttgart.strawberry.snake;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -9,7 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-
+/**
+ * Main activity der Snake-Applikation
+ */
 public class MainActivity extends ActionBarActivity {
 
     //Buttons
@@ -34,7 +37,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /*
-    Methoder Erzeu
+    Option-Bar erzeugen
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -43,6 +46,9 @@ public class MainActivity extends ActionBarActivity {
         return true;
     }
 
+    /*
+    Trigger der gewählten Option
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -58,12 +64,18 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /*
+    initialisiert Widgets
+     */
     private void initWidgets(){
         singleplayer = (Button) findViewById(R.id.singleplayer);
         multiplayer = (Button) findViewById(R.id.multiplayer);
         exit = (Button) findViewById(R.id.exit);
     }
 
+    /*
+    initialisiert Widget-Handler
+     */
     private void initWidgetHandlers(){
 
         // Klicklistener für Singleplayer Button
@@ -85,7 +97,9 @@ public class MainActivity extends ActionBarActivity {
         multiplayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                //zum testen vorerst mal beim multiplayer eingebaut
+                Intent intent = new Intent(MainActivity.this, GPSingleActivity.class);
+                startActivity(intent);
             }
         });
 
