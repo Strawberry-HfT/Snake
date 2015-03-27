@@ -20,9 +20,10 @@ import android.widget.Toast;
 
 public class DifficultyFragement extends DialogFragment {
     View myInflatedView;
-    Bundle bundle;
 
+    int geschwindigkeit;
 
+    //Bundle Key
     public static final String BUNDLE_DIFFICULTY = "difficulty";
 
     //Layout
@@ -72,20 +73,32 @@ public class DifficultyFragement extends DialogFragment {
             @Override
             public void onClick(View v) {
                 int checkedId = schwierigkeit.getCheckedRadioButtonId();
+
+
                 if (checkedId == R.id.einfach) {
-                    //bundle.putInt(BUNDLE_DIFFICULTY, 1);
-                    Toast.makeText(getActivity(), "1", Toast.LENGTH_SHORT).show();
+                    geschwindigkeit = 1;
+                    Toast.makeText(getActivity(), "Leicht", Toast.LENGTH_SHORT).show();
                 } else if (checkedId == R.id.mittel) {
-                    Toast.makeText(getActivity(), "2", Toast.LENGTH_SHORT).show();
+                    geschwindigkeit = 2;
+                    Toast.makeText(getActivity(), "Mittel", Toast.LENGTH_SHORT).show();
 
                 } else if (checkedId == R.id.schwer) {
-                    Toast.makeText(getActivity(), "3", Toast.LENGTH_SHORT).show();
+                    geschwindigkeit = 3;
+                    Toast.makeText(getActivity(), "Schwer", Toast.LENGTH_SHORT).show();
                 }
-                else {
-                    Toast.makeText(getActivity(), "Schwierigkeitsgrad auswählen", Toast.LENGTH_SHORT).show();
-                }
-               /* Intent intent = new Intent(getActivity(), GPSingleActivity.class);
-                startActivity(intent);*/
+
+
+
+                if (geschwindigkeit==0) {
+                     Toast.makeText(getActivity(), "Schwierigkeitsgrad auswählen", Toast.LENGTH_SHORT).show();
+                 } else {
+                     Bundle bundle = new Bundle();
+                     bundle.putInt(BUNDLE_DIFFICULTY, geschwindigkeit);
+                     Intent intent = new Intent(getActivity(), GPSingleActivity.class);
+                     intent.putExtras(bundle);
+                     startActivity(intent);
+                 }
+
 
             }
         });
