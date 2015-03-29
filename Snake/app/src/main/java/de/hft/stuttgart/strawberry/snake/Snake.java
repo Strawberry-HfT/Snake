@@ -1,5 +1,7 @@
 package de.hft.stuttgart.strawberry.snake;
 
+import android.graphics.Point;
+
 import java.util.ArrayList;
 
 /**
@@ -8,5 +10,13 @@ import java.util.ArrayList;
  */
 public class Snake {
 
-    private ArrayList<Coordinate> coord = new ArrayList<Coordinate>();
+    private ArrayList<Point> position = new ArrayList<Point>();
+
+    public ArrayList<Point> getPosition() {
+        return position;
+    }
+
+    public void setPosition(ArrayList<Point> position) {
+        this.position = position;
+    }
 }

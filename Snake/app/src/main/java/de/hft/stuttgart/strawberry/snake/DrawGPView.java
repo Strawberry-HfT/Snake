@@ -4,25 +4,40 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.view.View;
 
 /**
+ * Zeichnet die Schlange und die Erdbeere.
  * Created by Tommy_2 on 26.03.2015.
  */
 public class DrawGPView extends View {
 
-    Paint paintSnakeItem = new Paint();
-    Paint paintStrawberry = new Paint();
+    private static final int snakeItemSize = 25;
 
-    public DrawGPView(Context ctx) {
+    private Paint paintSnakeItem = new Paint();
+    private Paint paintStrawberry = new Paint();
+
+    private Snake snake;
+    private int xPos, yPos;
+
+    public DrawGPView(Context ctx, Snake currSnake) {
         super(ctx);
-        paintSnakeItem.setColor(Color.YELLOW);
+        if (currSnake != null && currSnake.getPosition() != null) {
+            snake = currSnake;
+        }
+        for (Point currPosition : snake.getPosition()) {
+            xPos = currPosition.x;
+            yPos = currPosition.y;
+        }
+        paintSnakeItem.setColor(Color.BLACK);
 
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(100,100,20,paintSnakeItem);
+        canvas.drawCircle(xPos, yPos, snakeItemSize, paintSnakeItem);
     }
+
 }

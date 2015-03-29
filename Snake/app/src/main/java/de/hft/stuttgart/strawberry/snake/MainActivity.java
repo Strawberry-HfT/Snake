@@ -3,12 +3,14 @@ package de.hft.stuttgart.strawberry.snake;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * Main activity der Snake-Applikation
@@ -27,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Initialisiert die Widgets der Activity
         this.initWidgets();
@@ -97,9 +100,7 @@ public class MainActivity extends ActionBarActivity {
         multiplayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //zum testen vorerst mal beim multiplayer eingebaut
-                Intent intent = new Intent(MainActivity.this, GPSingleActivity.class);
-                startActivity(intent);
+                Toast.makeText(MainActivity.this, "Noch nicht implementiert", Toast.LENGTH_SHORT).show();
             }
         });
 
