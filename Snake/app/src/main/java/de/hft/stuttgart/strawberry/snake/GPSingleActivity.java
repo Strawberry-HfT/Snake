@@ -22,23 +22,13 @@ public class GPSingleActivity extends Activity {
     Bundle bundle = new Bundle();
 
     private Snake snake;
+    private int snakeLength;
+    private boolean start = true;
 
-    private void initSnake() {
+    private void initSnake(ArrayList<Point> snakePos) {
         snake = new Snake();
-
-        //das ist nur zum testen erstmal
-        //hole erst Displayauflösung
-        Display display = getWindowManager().getDefaultDisplay();
-        Point displaySize = new Point();
-        display.getSize(displaySize);
-
-        //Punkt in der mitte
-        Point snakePosition = new Point();
-        snakePosition.set(displaySize.x/2,displaySize.y/2);
-
-        ArrayList<Point> startPosition = new ArrayList<Point>();
-        startPosition.add(snakePosition);
-        snake.setPosition(startPosition);
+        snake.setPosition(snakePos);
+        start = false;
     }
 
     @Override
@@ -48,7 +38,26 @@ public class GPSingleActivity extends Activity {
 
         bundle = getIntent().getExtras();
         int geschw = bundle.getInt(DifficultyFragement.BUNDLE_DIFFICULTY);
-        this.initSnake();
+        snakeLength = 3;
+        ArrayList<Point> startingPos = new ArrayList<Point>();
+
+        //Bildshirmauflösung holen und ins erste Drittel beider Achsen setzen
+        Display display = getWindowManager().getDefaultDisplay();
+        Point displaySize = new Point();
+        display.getSize(displaySize);
+
+        for (int i = 0; i < snakeLength; i++) {
+            int xPos, yPos;
+            // Startposition der Schlange
+            if (start) {
+                Point startPos = new Point();
+                xPos = displaySize.x/3 - i * 50;
+                yPos = displaySize.y/3;
+                startPos.set(xPos, yPos);
+                startingPos.add(startPos);
+            }
+        }
+        this.initSnake(startingPos);
 
         DrawGPView view = new DrawGPView(this, snake);
         view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);

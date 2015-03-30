@@ -26,10 +26,6 @@ public class DrawGPView extends View {
         if (currSnake != null && currSnake.getPosition() != null) {
             snake = currSnake;
         }
-        for (Point currPosition : snake.getPosition()) {
-            xPos = currPosition.x;
-            yPos = currPosition.y;
-        }
         paintSnakeItem.setColor(Color.BLACK);
 
     }
@@ -37,7 +33,13 @@ public class DrawGPView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(xPos, yPos, snakeItemSize, paintSnakeItem);
+        for (Point currPosition : snake.getPosition()) {
+            xPos = currPosition.x;
+            yPos = currPosition.y;
+            canvas.drawCircle(xPos, yPos, snakeItemSize, paintSnakeItem);
+        }
+        canvas.save();
+
     }
 
 }
