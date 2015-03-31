@@ -27,8 +27,14 @@ public class MainActivity extends ActionBarActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // Gibt das Bundle in die Superklasse
         super.onCreate(savedInstanceState);
+
+        // Verbindung mit .xml-file
         this.setContentView(R.layout.activity_main);
+
+        // Setzt die Rotation des Bildschims
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Initialisiert die Widgets der Activity
@@ -40,10 +46,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /*
-    Option-Bar erzeugen
+    Beim Erstellen der OprionBar
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -63,7 +70,6 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -81,17 +87,29 @@ public class MainActivity extends ActionBarActivity {
      */
     private void initWidgetHandlers(){
 
-        // Klicklistener für Singleplayer Button
+        /*
+        Klicklistener für Singleplayer Button, öffnet ein Fragment in dem die Schwierigkeit ausgewählt wird.
+         */
         singleplayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // Erzeugen des Fragments
                 DifficultyFragement difficultyFragement = new DifficultyFragement();
 
+                // Bundle zur Übergabe von Parametern
                 Bundle bundle = new Bundle();
+
+                // Parameterübergabe in das Fragment
                 difficultyFragement.setArguments(bundle);
 
-                FragmentManager fragmentManager = getFragmentManager();
+                // Lädt den Fragmentmanager der Activity
+                FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
+
+                // Startet die Transaction des Fragments
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                // Zeigt das Fragment an
                 difficultyFragement.show(fragmentTransaction, "test");
             }
         });
@@ -100,7 +118,7 @@ public class MainActivity extends ActionBarActivity {
         multiplayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Noch nicht implementiert", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Noch nicht implementiert", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -19,24 +19,36 @@ import android.widget.Toast;
 
 
 public class DifficultyFragement extends DialogFragment {
-    View myInflatedView;
 
-    int geschwindigkeit;
+    // View zum Fragment
+    private View myInflatedView;
 
-    //Bundle Key
+    // Ausgeählte Geschwindigkeit als int
+    private int geschwindigkeit;
+
+    // Konstante zur Schwierigkeitsübergabe an das Spiel
     public static final String BUNDLE_DIFFICULTY = "difficulty";
 
-    //Layout
-    Button spielen_btn;
+    // Spielen Button zum Starten des Spiels
+    private Button spielen_btn;
+
+    // RadioButton Group zur Schwierigkeitsauswahl
     RadioGroup schwierigkeit;
 
-    @Nullable
+    /*@Nullable*/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-              myInflatedView = inflater.inflate(R.layout.fragment_difficulty, container, false);
 
+        // Verbindet View mit .xml-file
+        myInflatedView = inflater.inflate(R.layout.fragment_difficulty, container, false);
+
+        // Dialogüberschrift
         getDialog().setTitle("Schwierigkeitsgrad");
+
+        // Initialisierung der Widgets
         initWidgets();
+
+        // Initialisierung der Handler
         initWidgetHandlers();
 
         return  myInflatedView;
@@ -49,31 +61,21 @@ public class DifficultyFragement extends DialogFragment {
     }
 
     private void initWidgets() {
-       schwierigkeit = (RadioGroup) myInflatedView.findViewById(R.id.schwierigkeitsgrad);
-       spielen_btn = (Button) myInflatedView.findViewById(R.id.spielen_btn);
+        // RadioButtonGroup
+        schwierigkeit = (RadioGroup) myInflatedView.findViewById(R.id.schwierigkeitsgrad);
+
+        // Spielen Button
+        spielen_btn = (Button) myInflatedView.findViewById(R.id.spielen_btn);
     }
 
     private void initWidgetHandlers() {
-        schwierigkeit.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-               /* if (checkedId == R.id.einfach) {
-                    bundle.putInt(BUNDLE_DIFFICULTY, 1);
-
-                } else if (checkedId == R.id.mittel) {
-                    bundle.putInt(BUNDLE_DIFFICULTY, 2);
-
-                } else if (checkedId == R.id.schwer) {
-                    bundle.putInt(BUNDLE_DIFFICULTY, 3);
-                }*/
-            }
-        });
 
         spielen_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int checkedId = schwierigkeit.getCheckedRadioButtonId();
 
+                // Holt die Id des ausgewählten RadioButtons
+                int checkedId = schwierigkeit.getCheckedRadioButtonId();
 
                 if (checkedId == R.id.einfach) {
                     geschwindigkeit = 1;
@@ -87,8 +89,7 @@ public class DifficultyFragement extends DialogFragment {
                     Toast.makeText(getActivity(), "Schwer", Toast.LENGTH_SHORT).show();
                 }
 
-
-
+                // Wenn keine Schwierigkeit gewählt wurde
                 if (geschwindigkeit==0) {
                      Toast.makeText(getActivity(), "Schwierigkeitsgrad auswählen", Toast.LENGTH_SHORT).show();
                  } else {
