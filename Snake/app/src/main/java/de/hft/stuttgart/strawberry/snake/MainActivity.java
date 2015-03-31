@@ -15,12 +15,15 @@ import android.widget.Toast;
 /**
  * Main activity der Snake-Applikation
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements OnDataPass{
 
     //Buttons
     private Button singleplayer;
     private Button multiplayer;
     private Button exit;
+
+    // Variablen
+    private int geschwindigkeit;
 
     /*
     Methode wird beim Start der Applikation aufgerufen
@@ -131,6 +134,11 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    @Override
+    public void onDataPass(int geschwindigkeit) {
+        this.setGeschwindigkeit(geschwindigkeit);
+    }
+
     // Getter und Setter
     public Button getMultiplayer() {
         return multiplayer;
@@ -154,5 +162,13 @@ public class MainActivity extends ActionBarActivity {
 
     public void setExit(Button exit) {
         this.exit = exit;
+    }
+
+    public int getGeschwindigkeit() {
+        return geschwindigkeit;
+    }
+
+    public void setGeschwindigkeit(int geschwindigkeit) {
+        this.geschwindigkeit = geschwindigkeit;
     }
 }
