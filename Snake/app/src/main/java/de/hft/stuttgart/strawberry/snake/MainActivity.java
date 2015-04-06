@@ -9,13 +9,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
 /**
  * Main activity der Snake-Applikation
  */
-public class MainActivity extends ActionBarActivity implements OnDataPass{
+public class MainActivity extends ActionBarActivity {
 
     //Buttons
     private Button singleplayer;
@@ -34,23 +36,22 @@ public class MainActivity extends ActionBarActivity implements OnDataPass{
         // Gibt das Bundle in die Superklasse
         super.onCreate(savedInstanceState);
 
-        // Verbindung mit .xml-file
-        this.setContentView(R.layout.activity_main);
-
         // Setzt die Rotation des Bildschims
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        // Verbindung mit .xml-file
+        this.setContentView(R.layout.activity_main);
 
         // Initialisiert die Widgets der Activity
         this.initWidgets();
 
         // Initialisiert die Handler der Widgets
         this.initWidgetHandlers();
-
     }
 
     /*
-    Beim Erstellen der OprionBar
-     */
+        Beim Erstellen der OptionBar
+         */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -114,6 +115,7 @@ public class MainActivity extends ActionBarActivity implements OnDataPass{
 
                 // Zeigt das Fragment an
                 difficultyFragement.show(fragmentTransaction, "test");
+
             }
         });
 
@@ -122,6 +124,8 @@ public class MainActivity extends ActionBarActivity implements OnDataPass{
             @Override
             public void onClick(View v) {
                 //Toast.makeText(MainActivity.this, "Noch nicht implementiert", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, GPSingleActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -134,9 +138,11 @@ public class MainActivity extends ActionBarActivity implements OnDataPass{
         });
     }
 
-    @Override
-    public void onDataPass(int geschwindigkeit) {
-        this.setGeschwindigkeit(geschwindigkeit);
+    public void onLevelSelected(int level) {
+        geschwindigkeit = level;
+        Intent intent = new Intent(this, GPSingleActivity.class);
+        intent.putExtra("difficulty", level);
+        startActivity(intent);
     }
 
     // Getter und Setter
@@ -171,4 +177,6 @@ public class MainActivity extends ActionBarActivity implements OnDataPass{
     public void setGeschwindigkeit(int geschwindigkeit) {
         this.geschwindigkeit = geschwindigkeit;
     }
+
+
 }

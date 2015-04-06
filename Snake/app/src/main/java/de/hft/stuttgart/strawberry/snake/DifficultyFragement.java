@@ -1,6 +1,5 @@
 package de.hft.stuttgart.strawberry.snake;
 
-import android.app.Activity;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +13,12 @@ import android.widget.Toast;
  * Created by Juliano on 26.03.2015.
  *
  */
-
-
 public class DifficultyFragement extends DialogFragment {
 
     // View zum Fragment
     private View myInflatedView;
 
-    // Interface zur Datenübergabe
-    private OnDataPass dataPasser;
-
-    // Ausgeählte Geschwindigkeit als int
+    // Ausgewählte Geschwindigkeit als int
     private int geschwindigkeit;
 
     // Konstante zur Schwierigkeitsübergabe an das Spiel
@@ -60,18 +54,6 @@ public class DifficultyFragement extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
     }
 
-    // Zur Datenübergabe in die Activity
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        dataPasser = (OnDataPass)activity;
-    }
-
-    // Methode zur Übergabe der Geschwindigkeit
-    public void passData(int geschwindigkeit){
-        dataPasser.onDataPass(geschwindigkeit);
-    }
-
     private void initWidgets() {
         // RadioButtonGroup
         schwierigkeit = (RadioGroup) myInflatedView.findViewById(R.id.schwierigkeitsgrad);
@@ -105,7 +87,9 @@ public class DifficultyFragement extends DialogFragment {
                 if (geschwindigkeit==0) {
                      Toast.makeText(getActivity(), "Schwierigkeitsgrad auswählen", Toast.LENGTH_SHORT).show();
                  } else {
-                     passData(geschwindigkeit);
+                    MainActivity callingActivity = (MainActivity) getActivity();
+                    callingActivity.onLevelSelected(geschwindigkeit);
+                    dismiss();
                  }
             }
         });

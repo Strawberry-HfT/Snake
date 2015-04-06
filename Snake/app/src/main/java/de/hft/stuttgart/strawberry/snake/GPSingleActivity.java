@@ -24,11 +24,18 @@ public class GPSingleActivity extends Activity {
     private Snake snake;
     private int snakeLength;
     private boolean start = true;
+    private Point displaySize;
 
     private void initSnake(ArrayList<Point> snakePos) {
         snake = new Snake();
         snake.setPosition(snakePos);
         start = false;
+    }
+
+    private void getDisplaySize() {
+        Display display = getWindowManager().getDefaultDisplay();
+        displaySize = new Point();
+        display.getSize(displaySize);
     }
 
     @Override
@@ -37,31 +44,36 @@ public class GPSingleActivity extends Activity {
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         bundle = getIntent().getExtras();
-        int geschw = bundle.getInt(DifficultyFragement.BUNDLE_DIFFICULTY);
+        // habe ich auskommentiert weil wenn ich über den multiplayer button
+        // das Gameplay aufrufe bekomm ich ne exception. Das mach ich weils schneller geht
+//        int geschw = bundle.getInt(DifficultyFragement.BUNDLE_DIFFICULTY);
         snakeLength = 3;
         ArrayList<Point> startingPos = new ArrayList<Point>();
 
         //Bildshirmauflösung holen und ins erste Drittel beider Achsen setzen
-        Display display = getWindowManager().getDefaultDisplay();
-        Point displaySize = new Point();
-        display.getSize(displaySize);
+        getDisplaySize();
 
-        for (int i = 0; i < snakeLength; i++) {
-            int xPos, yPos;
-            // Startposition der Schlange
-            if (start) {
-                Point startPos = new Point();
-                xPos = displaySize.x/3 - i * 50;
-                yPos = displaySize.y/3;
-                startPos.set(xPos, yPos);
-                startingPos.add(startPos);
+        for (int j = 0; j < 5; j++) {
+            int x = j * 50;
+
+            for (int i = 0; i < snakeLength; i++) {
+                int xPos, yPos;
+                // Startposition der Schlange
+                if (start) {
+                    Point startPos = new Point();
+                    xPos = x + displaySize.x/3 - i * 50;
+                    yPos = displaySize.y/3;
+                    startPos.set(xPos, yPos);
+                    startingPos.add(startPos);
+                }
             }
-        }
-        this.initSnake(startingPos);
+            this.initSnake(startingPos);
 
-        DrawGPView view = new DrawGPView(this, snake);
-        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        this.setContentView(view);
+            DrawGPView view = new DrawGPView(this, snake, displaySize);
+            view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            this.setContentView(view);
+        }
+
     }
 
 }
