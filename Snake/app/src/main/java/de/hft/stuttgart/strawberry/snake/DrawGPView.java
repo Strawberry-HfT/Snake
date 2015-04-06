@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -28,55 +27,43 @@ public class DrawGPView extends View {
     // Das Schlangenobjekt
     private Snake snake;
 
-    // Position der Schlangenglieder
-    private int xSnakePos, ySnakePos;
+    private Strawberry berry;
 
-    // Position der Erdbeere
-    private int xBerryPos, yBerryPos;
-
-    // Bildschirmauflösung
-    private Point displaySize;
-
-    // Kollisionsgeber
-    private boolean collides;
-
-    // anderes zu überprüfendes Objekt
-    private Point otherCheckedObj;
+    // PositionListener
+    private PosititonListener positionListener;
 
     /*
     Konsturktor dieser View
      */
-    public DrawGPView(Context ctx, Snake currSnake, Point displaySize) {
+    public DrawGPView(Context ctx, Snake currSnake, Strawberry currBerry, Point displaySize) {
         super(ctx);
+
+        // Hintergrund setzen
         setBackgroundResource(R.drawable.gameplay_background);
 
+        //TODO hier sollte noch abgefangen werden was passiert wenn currSnake und currBerry null sind
+        // Schlange initialisieren
         paintSnakeItem = new Paint();
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
+        paintSnakeItem.setColor(Color.BLACK);
         if (currSnake != null && currSnake.getPosition() != null) {
             snake = currSnake;
         }
-        paintSnakeItem.setColor(Color.BLACK);
-        this.displaySize = displaySize;
-    }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        drawSnake(canvas);
-
-        // Hier werden testweise mal 50 Erdbeeren erstellt um zu schauen wo die so verteilt werden
-        for (int i = 0; i < 50; i++) {
-            createBerryPosition();
-            canvas.drawBitmap(bitmap, xBerryPos, yBerryPos, null);
+        // Erdbeere initialisieren
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
+        if (currBerry != null && currBerry.getPosition() != null) {
+            berry = currBerry;
         }
+        Point displaySize1 = displaySize;
     }
+
     /*
     Zeichnet die Schlange
      */
     private void drawSnake(Canvas canvas) {
         for (Point currPosition : snake.getPosition()) {
-            xSnakePos = currPosition.x;
-            ySnakePos = currPosition.y;
+            int xSnakePos = currPosition.x;
+            int ySnakePos = currPosition.y;
             canvas.drawCircle(xSnakePos, ySnakePos, snakeItemSize, paintSnakeItem);
         }
     }
@@ -84,40 +71,35 @@ public class DrawGPView extends View {
     /*
     Erstellt eine Erdbeere auf dem Spielfeld
      */
-    private void createBerryPosition() {
+    private void drawBerry(Canvas canvas) {
+        int xBerryPos = berry.getPosition().x;
+        int yBerryPos = berry.getPosition().y;
+        canvas.drawBitmap(bitmap, xBerryPos, yBerryPos, null);
+    }
 
-        int maxWidth = displaySize.x;
-        int maxHeight = displaySize.y;
-
-        xBerryPos = 0;
-        yBerryPos = 0;
-
-        xBerryPos = (int) (Math.random() * 50) * 38;
-        yBerryPos = (int) (Math.random() * 50) * 18;
-
-        otherCheckedObj = new Point(xBerryPos, yBerryPos);
-
-        checkCollision(snake, otherCheckedObj);
-
-        if ((xBerryPos > maxWidth || yBerryPos > maxHeight) || collides) {
-            Log.i("BerryPosition", "Position ausserhalb der Anzeige oder Kollision");
-            createBerryPosition();
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (positionListener != null) {
+            positionListener.onPositionChanged();
+        }
+        try {
+            drawSnake(canvas);
+            drawBerry(canvas);
+//            Thread.sleep(500);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     /*
-    Überprüfung, ob die Schlange mit sich selber, der Erdbeere oder der Wand kollidiert
+    Interface nur testweise erst mal hier
      */
-    private boolean checkCollision(Snake snake, Point otherObj) {
-        collides = false;
-        //TODO nicht genug Parameter zur Kontrolle, da nur die genauen Pixel hier beachtet werden aber nicht wie groß die Bilder dann sind und ob sie sich übeschneiden
-        for (Point currP : snake.getPosition()) {
-            if (currP.x == otherObj.x && currP.y == otherObj.y) {
-                collides = true;
-                Log.i("checkCollision", "Damn it collides!");
-            }
-        }
-        return  collides;
+    public interface PosititonListener {
+        public void onPositionChanged();
     }
 
+    public void setPositionListener(PosititonListener positionListener) {
+        this.positionListener = positionListener;
+    }
 }
