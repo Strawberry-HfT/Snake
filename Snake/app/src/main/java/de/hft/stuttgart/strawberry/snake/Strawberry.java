@@ -1,5 +1,9 @@
 package de.hft.stuttgart.strawberry.snake;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Point;
 
 /**
@@ -8,13 +12,68 @@ import android.graphics.Point;
  */
 public class Strawberry {
 
-    private Point position = new Point();
+    // Positon der Beere
+    private Point berryPosition = new Point();
 
-    public Point getPosition() {
-        return position;
+    // Displaygröße
+    private Point displaySize;
+
+    // Bitmap Bild
+    private Bitmap berryBitmap;
+
+    // Constructor
+    public Strawberry(Point displaySize){
+        this.displaySize = displaySize;
+        createBerryPosition();
     }
 
-    public void setPosition(Point position) {
-        this.position = position;
+    // Zeichnen
+    public void drawStrawberry(Canvas canvas, Bitmap berryBitmap){
+        canvas.drawBitmap(berryBitmap,berryPosition.x, berryPosition.y, null);
+    }
+
+    private void createBerryPosition(){
+        int berryX;
+        int berryY;
+
+        // Zufallspunkte
+        berryX = (int) (Math.random() * 50) * 38;
+        berryY = (int) (Math.random() * 50) * 18;
+
+        // Wenn Beere am Rand, dann neu erstellen lassen
+        if(berryX >= displaySize.x || berryY >= displaySize.y){
+            createBerryPosition();
+        }
+
+        // Übergibt die lokalen Werte in die globale Position
+        berryPosition.x = berryX;
+        berryPosition.y = berryY;
+
+        // TODO Prüfen ob Beere auf Schlange erstellt wird
+    }
+
+    // Setter und Getter
+    public Point getBerryPosition() {
+        return berryPosition;
+    }
+
+    public void setBerryPosition(Point berryPosition) {
+        this.berryPosition = berryPosition;
+    }
+
+    public Point getDisplaySize() {
+        return displaySize;
+    }
+
+    public void setDisplaySize(Point displaySize) {
+        this.displaySize = displaySize;
+    }
+
+    public Bitmap getBerryBitmap() {
+        return berryBitmap;
+    }
+
+    public void setBerryBitmap(Bitmap berryBitmap) {
+        this.berryBitmap = berryBitmap;
     }
 }

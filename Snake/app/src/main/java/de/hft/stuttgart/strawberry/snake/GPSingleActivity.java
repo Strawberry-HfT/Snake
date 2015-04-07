@@ -4,162 +4,89 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Von hier aus wird das Game-Play des
  * Singleplayermodus ausgefuehrt.
  * Created by Tommy_2 on 26.03.2015.
  */
-public class GPSingleActivity extends Activity {
-    private Bundle bundle = new Bundle();
-    private DrawGPView GPView;
+public class GPSingleActivity extends Activity{
 
+    // View in Activity
+    private GPSingleView view;
+
+    // Schlange
     private Snake snake;
-    private Strawberry sBerry;
 
-    private int snakeLength;
-    private int snakeItemNumbr;
+    // Beere
+    private Strawberry strawberry;
 
-    private boolean start = true;
-    private boolean collides;
-
+    // Display-Größe
     private Point displaySize;
-
-    private ArrayList<Point> startingPos;
-    private Point berryPos;
-    private Point newBerryPos;
-
-    // Position der Schlangenglieder
-    private int xSnakePos, ySnakePos;
-
-
-    private void initSnake(ArrayList<Point> snakePos) {
-        snake = new Snake();
-        snake.setPosition(snakePos);
-    }
-
-    private void initBerry(Point position) {
-        sBerry = new Strawberry();
-        sBerry.setPosition(position);
-    }
-
-    private void getDisplaySize() {
-        Display display = getWindowManager().getDefaultDisplay();
-        displaySize = new Point();
-        display.getSize(displaySize);
-    }
-
-    private void createInitialPositions() {
-        // Position für Schlange
-        for (int i = 0; i < snakeLength; i++) {
-            int xPos, yPos;
-            // Startposition der Schlange
-                Point startPos = new Point();
-                xPos = snakeItemNumbr + displaySize.x / 3 - i * 50;
-                yPos = displaySize.y / 3;
-                startPos.set(xPos, yPos);
-                startingPos.add(startPos);
-        }
-        this.initSnake(startingPos);
-
-        this.createBerryPosition(null, startingPos);
-        this.initBerry(berryPos);
-        start = false;
-    }
-
-    private void createBerryPosition(Point oldBerry, ArrayList<Point> snake) {
-        int maxWidth = displaySize.x;
-        int maxHeight = displaySize.y;
-        int xBerryPos;
-        int yBerryPos;
-
-
-        xBerryPos = (int) (Math.random() * 50) * 38;
-        yBerryPos = (int) (Math.random() * 50) * 18;
-
-        // Neue Koordinaten wenn ausserhalb des Displaybereichs
-        if (xBerryPos > maxWidth || yBerryPos > maxHeight) {
-            createBerryPosition(oldBerry, snake);
-        }
-
-        newBerryPos = new Point(xBerryPos, yBerryPos);
-
-        // Überprüfung ob die Erdbeere an derselben stelle ist
-        if (oldBerry != null) {
-            checkCollision(oldBerry, newBerryPos);
-        }
-
-        // Überprüfung ob die Erdbeere auf der Schlange ertellt werden würde
-        if (snake != null) {
-            for (Point currSItem : snake) {
-                checkCollision(currSItem, newBerryPos);
-            }
-        } else {
-            this.finish();
-            throw new RuntimeException("Snake is NULL!! Something went wrong!");
-        }
-
-        // Falls eine der Prüfungen fehlgeschlagen sind, neue Position
-        if (!collides) {
-            berryPos.set(xBerryPos, yBerryPos);
-        } else {
-            createBerryPosition(oldBerry, snake);
-        }
-    }
-
-    /*
-   Überprüfung, ob die Schlange mit sich selber, der Erdbeere oder der Wand kollidiert
-    */
-    private boolean checkCollision(Point onePoint, Point otherPoint) {
-        collides = false;
-        //TODO nicht genug Parameter zur Kontrolle, da nur die genauen Pixel hier beachtet werden aber nicht wie groß die Bilder dann sind und ob sie sich übeschneiden
-        if (onePoint != null && otherPoint != null) {
-            if (onePoint.x == otherPoint.x && onePoint.y == otherPoint.y) {
-                collides = true;
-                Log.i("checkCollision", "Damn it collides!");
-            }
-        }
-        return  collides;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Ausrichtung Bildschirm (wird festgehalten)
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        bundle = getIntent().getExtras();
-        // habe ich auskommentiert weil wenn ich über den multiplayer button
-        // das Gameplay aufrufe bekomm ich ne exception. Das mach ich weils schneller geht
-//        int geschw = bundle.getInt(DifficultyFragement.BUNDLE_DIFFICULTY);
-        snakeLength = 3;
-        startingPos = new ArrayList<Point>();
-        berryPos = new Point();
-
-        //Bildshirmauflösung holen und ins erste Drittel beider Achsen setzen
+        // Liest Displaygröße und speichert sie lokal
         getDisplaySize();
-        createInitialPositions();
 
-        GPView = new DrawGPView(GPSingleActivity.this, snake, sBerry, displaySize);
-        GPView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        this.setContentView(GPView);
+        // Initialisierung Variablen
+        this.snake = new Snake(new Point(10,10));
+        this.strawberry = new Strawberry(displaySize);
+
+        /*
+         Initialisiert View
+         Bekommt Activity, Schlange, Beere
+          */
+        this.view = new GPSingleView(this, snake, strawberry);
+
+        // Übergabe Bitmap von View in Strawberry-Klasse
+        this.strawberry.setBerryBitmap(this.view.getBerryBitmap());
+
+        // Vollbildmodus der View
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+
+        // Verknüpft die Activity mit der View
+        this.setContentView(view);
+
+        // startet Timer
+        startTimer();
     }
 
-    private int i = 0;
-    @Override
-    protected void onStart() {
-        super.onStart();
-        GPView.setPositionListener(new DrawGPView.PosititonListener() {
+    // Startet Timer
+    private void startTimer(){
+        // (Thread)Zeichnet die View immer wieder neu
+        Timer myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
             @Override
-            public void onPositionChanged() {
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        snake.moveSnake();
+                        view.invalidate();
 
-                Log.i("Interface Event", "Interface called the " + i + " time");
-                i++;
+                    }
+                });
             }
-        });
+        },10,100);
+    }
+
+    // Liest Displaygröße aus
+    private void getDisplaySize(){
+        Display display = getWindowManager().getDefaultDisplay();
+        displaySize = new Point();
+        display.getSize(displaySize);
     }
 }
