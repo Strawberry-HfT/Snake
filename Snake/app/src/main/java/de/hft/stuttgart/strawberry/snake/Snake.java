@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.hardware.SensorEvent;
+import android.widget.Switch;
 
 import java.util.ArrayList;
 
@@ -26,15 +28,31 @@ public class Snake {
         snakePaint.setColor(Color.BLUE);
 
         for(Point currentPoint : position){
-            canvas.drawCircle(currentPoint.x,currentPoint.y,25,snakePaint);
+            canvas.drawCircle(currentPoint.x,currentPoint.y,20,snakePaint);
         }
     }
 
     // Bewegt die Schlange
-    public void moveSnake(){
-        for (Point currItem : position) {
-            currItem.x += 10;
+    public void moveSnake(Movement direction){
+
+        /*
+         Durchläuft die Positionen Rückwärts (Vom letzten zum ersten Wert)
+         Dise Schleife zieht alle Dots hinter dem Kopf nach
+          */
+        for(int i = this.position.size()-1; i > 0; i--){
+            this.position.get(i).x = this.position.get(i-1).x;
+            this.position.get(i).y = this.position.get(i-1).y;
         }
+
+            if(direction.isUp()){
+                this.position.get(0).y -=20;
+            } if(direction.isDown()){
+                this.position.get(0).y +=20;
+            } if(direction.isRight()){
+                this.position.get(0).x +=20;
+            } if(direction.isLeft()){
+                this.position.get(0).x -=20;
+            }
     }
 
     // Setter und Getter

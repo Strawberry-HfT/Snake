@@ -3,6 +3,10 @@ package de.hft.stuttgart.strawberry.snake;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
@@ -11,13 +15,14 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.prefs.Preferences;
 
 /**
  * Von hier aus wird das Game-Play des
  * Singleplayermodus ausgefuehrt.
  * Created by Tommy_2 on 26.03.2015.
  */
-public class GPSingleActivity extends Activity{
+public class GPSingleActivity extends Activity implements SensorEventListener {
 
     // View in Activity
     private GPSingleView view;
@@ -28,8 +33,16 @@ public class GPSingleActivity extends Activity{
     // Beere
     private Strawberry strawberry;
 
+    // TODO Besprechung: Verschiedene Handys haben verschiedene Displaygrößen
     // Display-Größe
     private Point displaySize;
+
+    // Sensoren
+    private Sensor sensorAccelorometer;
+    private SensorManager sensorManager;
+
+    // Variable für Bewegung
+    private Movement direction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +55,7 @@ public class GPSingleActivity extends Activity{
         // Liest Displaygröße und speichert sie lokal
         getDisplaySize();
 
+        // TODO Besprechung: Eventuell auslagerung in Snake
         // Schlange aus drei Gliedern erstellen
         for (int i = 0; i < 3; i++) {
             int xPos, yPos;
@@ -56,6 +70,7 @@ public class GPSingleActivity extends Activity{
         // Initialisierung Variablen
         this.snake = new Snake(startingPos);
         this.strawberry = new Strawberry(displaySize);
+        this.direction = new Movement();
 
         /*
          Initialisiert View
@@ -74,10 +89,15 @@ public class GPSingleActivity extends Activity{
 
         // startet Timer
         startTimer();
+
+        // Sensor starten
+        this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        this.sensorAccelorometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        this.sensorManager.registerListener(this, sensorAccelorometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     // Startet Timer
-    private void startTimer(){
+    private void startTimer() {
         // (Thread)Zeichnet die View immer wieder neu
         Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
@@ -86,19 +106,52 @@ public class GPSingleActivity extends Activity{
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        snake.moveSnake();
+                        snake.moveSnake(GPSingleActivity.this.direction);
                         view.invalidate();
 
                     }
                 });
             }
-        },10,100);
+        }, 0, 300);
     }
 
     // Liest Displaygröße aus
-    private void getDisplaySize(){
+    private void getDisplaySize() {
         Display display = getWindowManager().getDefaultDisplay();
         displaySize = new Point();
         display.getSize(displaySize);
+    }
+
+    // Sensoränderung (Richtung)
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+     //   System.out.println("X: "+event.values[0]+"\n"+"Y: "+event.values[1]+"\n");
+
+        // Runter
+        if (event.values[0] >= 0 && event.values[0] >= event.values[1] && event.values[0] >= (event.values[1]*-1)) {
+            this.direction.setDown(true);
+        }
+
+        // Hoch
+        if (event.values[0] <= 0 && event.values[0] <= event.values[1] && event.values[0] <= (event.values[1]*-1)) {
+            this.direction.setUp(true);
+        }
+
+        // Rechts
+        if (event.values[1] >= 0 && event.values[1] >= event.values[0] && event.values[1] >= (event.values[0]*-1)){
+            this.direction.setRight(true);
+        }
+
+        // Links
+        if (event.values[1] <= 0 && event.values[1] <= event.values[0] && event.values[1] <= (event.values[0]*-1)) {
+            this.direction.setLeft(true);
+        }
+    }
+
+    // Sensorgenauigkeit
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Nichts
     }
 }

@@ -35,8 +35,8 @@ public class GPSingleView extends View {
         super(context);
         this.snake = snake;
         this.strawberry = strawberry;
-        berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
-        setBackgroundResource(R.drawable.gameplay_background);
+        this.berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
+        this.setBackgroundResource(R.drawable.gameplay_background);
     }
 
     // Zeichnet die View
