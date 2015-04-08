@@ -16,8 +16,8 @@ public class Snake {
     private ArrayList<Point> position = new ArrayList<Point>();
     private int level;
 
-    public Snake(Point point){
-        position.add(point);
+    public Snake(ArrayList<Point> pos){
+        setPosition(pos);
     }
 
     // Zeichnet die Schlange
@@ -26,13 +26,15 @@ public class Snake {
         snakePaint.setColor(Color.BLUE);
 
         for(Point currentPoint : position){
-            canvas.drawCircle(currentPoint.x,currentPoint.y,10,snakePaint);
+            canvas.drawCircle(currentPoint.x,currentPoint.y,25,snakePaint);
         }
     }
 
     // Bewegt die Schlange
     public void moveSnake(){
-        position.get(0).x += 10;
+        for (Point currItem : position) {
+            currItem.x += 10;
+        }
     }
 
     // Setter und Getter

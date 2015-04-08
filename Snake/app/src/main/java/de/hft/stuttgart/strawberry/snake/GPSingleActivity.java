@@ -34,6 +34,7 @@ public class GPSingleActivity extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ArrayList<Point> startingPos = new ArrayList<Point>();
 
         // Ausrichtung Bildschirm (wird festgehalten)
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -41,8 +42,19 @@ public class GPSingleActivity extends Activity{
         // Liest Displaygröße und speichert sie lokal
         getDisplaySize();
 
+        // Schlange aus drei Gliedern erstellen
+        for (int i = 0; i < 3; i++) {
+            int xPos, yPos;
+            // Startposition der Schlange
+            Point startPos = new Point();
+            xPos = displaySize.x / 3 - i * 50;
+            yPos = displaySize.y / 3;
+            startPos.set(xPos, yPos);
+            startingPos.add(startPos);
+        }
+
         // Initialisierung Variablen
-        this.snake = new Snake(new Point(10,10));
+        this.snake = new Snake(startingPos);
         this.strawberry = new Strawberry(displaySize);
 
         /*
