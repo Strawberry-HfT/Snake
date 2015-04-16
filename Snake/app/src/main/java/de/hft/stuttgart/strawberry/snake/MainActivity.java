@@ -11,8 +11,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Handler;
 
 /**
  * Main activity der Snake-Applikation
@@ -23,6 +29,10 @@ public class MainActivity extends ActionBarActivity {
     private Button singleplayer;
     private Button multiplayer;
     private Button exit;
+
+    //Animationen
+    private Animation animScale;
+
 
     // Variablen
     private int geschwindigkeit;
@@ -84,6 +94,7 @@ public class MainActivity extends ActionBarActivity {
         singleplayer = (Button) findViewById(R.id.singleplayer);
         multiplayer = (Button) findViewById(R.id.multiplayer);
         exit = (Button) findViewById(R.id.exit);
+        animScale = AnimationUtils.loadAnimation(this, R.anim.anim_scale);
     }
 
     /*
@@ -98,24 +109,38 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                // Erzeugen des Fragments
-                DifficultyFragement difficultyFragement = new DifficultyFragement();
+                //Startet die Button Animation
+                v.startAnimation(animScale);
 
-                // Bundle zur Übergabe von Parametern
-                Bundle bundle = new Bundle();
+                //Timer verzögert das Ausführen der Anschlussaktion
+                Timer myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Erzeugen des Fragments
+                                DifficultyFragement difficultyFragement = new DifficultyFragement();
 
-                // Parameterübergabe in das Fragment
-                difficultyFragement.setArguments(bundle);
+                                // Bundle zur Übergabe von Parametern
+                                Bundle bundle = new Bundle();
 
-                // Lädt den Fragmentmanager der Activity
-                FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
+                                // Parameterübergabe in das Fragment
+                                difficultyFragement.setArguments(bundle);
 
-                // Startet die Transaction des Fragments
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                // Lädt den Fragmentmanager der Activity
+                                FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
 
-                // Zeigt das Fragment an
-                difficultyFragement.show(fragmentTransaction, "test");
+                                // Startet die Transaction des Fragments
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
+                                // Zeigt das Fragment an
+                                difficultyFragement.show(fragmentTransaction, "test");
+                            }
+                        });
+                    }
+                }, 300);
             }
         });
 
@@ -124,16 +149,46 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(MainActivity.this, "Noch nicht implementiert", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(MainActivity.this, GPSingleActivity.class);
-                startActivity(intent);
+                //Startet die Button Animation
+                v.startAnimation(animScale);
+
+                //Timer verzögert das Ausführen der Anschlussaktion
+                Timer myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent(MainActivity.this, GPSingleActivity.class);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                }, 300);
             }
         });
 
         // Klicklistener für Exit Button
         exit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                MainActivity.this.finish();
+            public void onClick(final View v) {
+                //Startet die Button Animation
+                v.startAnimation(animScale);
+
+                //Timer verzögert das Ausführen der Anschlussaktion
+                Timer myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                MainActivity.this.finish();
+                            }
+                        });
+                    }
+                }, 300);
             }
         });
     }
