@@ -15,11 +15,40 @@ import java.util.ArrayList;
  */
 public class Snake {
 
+    // Hält die Point-Positionen der Schlange
     private ArrayList<Point> position = new ArrayList<Point>();
+
+    // Anzahl der Punkte
+    private int dots;
+
+    // Schwierigkeit des Spiels
     private int level;
 
-    public Snake(ArrayList<Point> pos){
-        setPosition(pos);
+    public Snake(int dots){
+        this.dots = dots;
+        initStartPositions(this.dots);
+    }
+
+    private void initStartPositions(int dots){
+        // Iteriert über die Anzahl der Punkte
+        for(int i = 0; i< dots; i++){
+            Point point = new Point();
+            point.x = 100-i*20;
+            point.y = 100;
+            this.position.add(point);
+        }
+
+        // Schlange aus drei Gliedern erstellen
+//        for (int i = 0; i < 3; i++) {
+//            int xPos, yPos;
+//            // Startposition der Schlange
+//            Point startPos = new Point();
+//            xPos = displaySize.x / 3 - i * 50;
+//            yPos = displaySize.y / 3;
+//            startPos.set(xPos, yPos);
+//            startingPos.add(startPos);
+//        }
+
     }
 
     // Zeichnet die Schlange

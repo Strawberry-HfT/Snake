@@ -47,7 +47,6 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ArrayList<Point> startingPos = new ArrayList<Point>();
 
         // Ausrichtung Bildschirm (wird festgehalten)
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -55,20 +54,8 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
         // Liest Displaygröße und speichert sie lokal
         getDisplaySize();
 
-        // TODO Besprechung: Eventuell auslagerung in Snake
-        // Schlange aus drei Gliedern erstellen
-        for (int i = 0; i < 3; i++) {
-            int xPos, yPos;
-            // Startposition der Schlange
-            Point startPos = new Point();
-            xPos = displaySize.x / 3 - i * 50;
-            yPos = displaySize.y / 3;
-            startPos.set(xPos, yPos);
-            startingPos.add(startPos);
-        }
-
         // Initialisierung Variablen
-        this.snake = new Snake(startingPos);
+        this.snake = new Snake(3);
         this.strawberry = new Strawberry(displaySize);
         this.direction = new Movement();
 
@@ -81,8 +68,13 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
         // Übergabe Bitmap von View in Strawberry-Klasse
         this.strawberry.setBerryBitmap(this.view.getBerryBitmap());
 
-        // Vollbildmodus der View
-        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+        // Vollbildmodus der View, ab Android 4.4
+        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         // Verknüpft die Activity mit der View
         this.setContentView(view);
@@ -123,10 +115,10 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
     }
 
     // Sensoränderung (Richtung)
-    @Override
-    public void onSensorChanged(SensorEvent event) {
+           @Override
+        public void onSensorChanged(SensorEvent event) {
 
-     //   System.out.println("X: "+event.values[0]+"\n"+"Y: "+event.values[1]+"\n");
+            //   System.out.println("X: "+event.values[0]+"\n"+"Y: "+event.values[1]+"\n");
 
         // Runter
         if (event.values[0] >= 0 && event.values[0] >= event.values[1] && event.values[0] >= (event.values[1]*-1)) {

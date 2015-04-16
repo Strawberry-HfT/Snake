@@ -4,21 +4,17 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Handler;
 
 /**
  * Main activity der Snake-Applikation
@@ -232,6 +228,4 @@ public class MainActivity extends ActionBarActivity {
     public void setGeschwindigkeit(int geschwindigkeit) {
         this.geschwindigkeit = geschwindigkeit;
     }
-
-
 }

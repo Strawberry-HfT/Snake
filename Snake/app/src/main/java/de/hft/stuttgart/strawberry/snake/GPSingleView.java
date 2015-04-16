@@ -18,7 +18,7 @@ import java.util.TimerTask;
  * Verwaltet die Schlange und die Erdbeere.
  * Created by Tommy_2 on 26.03.2015.
  */
-public class GPSingleView extends View {
+public class GPSingleView extends View{
 
     // Variablen
     private Snake snake;
@@ -28,9 +28,9 @@ public class GPSingleView extends View {
     private Bitmap snakeBitmap;
 
     /*
-    Constructor der Context übergeben bekommt.
-    Der Context ist die aufrufende Activity (GPSingleActivity)
-     */
+        Constructor der Context übergeben bekommt.
+        Der Context ist die aufrufende Activity (GPSingleActivity)
+         */
     public GPSingleView(Context context, Snake snake, Strawberry strawberry) {
         super(context);
         this.snake = snake;
