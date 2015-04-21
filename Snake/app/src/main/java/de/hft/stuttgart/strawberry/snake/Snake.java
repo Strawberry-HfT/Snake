@@ -37,18 +37,6 @@ public class Snake {
             point.y = 100;
             this.position.add(point);
         }
-
-        // Schlange aus drei Gliedern erstellen
-//        for (int i = 0; i < 3; i++) {
-//            int xPos, yPos;
-//            // Startposition der Schlange
-//            Point startPos = new Point();
-//            xPos = displaySize.x / 3 - i * 50;
-//            yPos = displaySize.y / 3;
-//            startPos.set(xPos, yPos);
-//            startingPos.add(startPos);
-//        }
-
     }
 
     // Zeichnet die Schlange
