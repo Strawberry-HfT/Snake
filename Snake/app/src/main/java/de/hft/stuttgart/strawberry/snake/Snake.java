@@ -4,8 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.hardware.SensorEvent;
-import android.widget.Switch;
 
 import java.util.ArrayList;
 

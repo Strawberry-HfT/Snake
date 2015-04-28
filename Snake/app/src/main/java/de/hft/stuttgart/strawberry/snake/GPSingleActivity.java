@@ -8,14 +8,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.view.Display;
 import android.view.View;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.prefs.Preferences;
 
 /**
  * Von hier aus wird das Game-Play des
@@ -33,7 +31,6 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
     // Beere
     private Strawberry strawberry;
 
-    // TODO Besprechung: Verschiedene Handys haben verschiedene Displaygrößen
     // Display-Größe
     private Point displaySize;
 
@@ -52,7 +49,7 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         // Liest Displaygröße und speichert sie lokal
-        getDisplaySize();
+        readDisplaySize();
 
         // Initialisierung Variablen
         this.snake = new Snake(3);
@@ -65,7 +62,7 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
           */
         this.view = new GPSingleView(this, snake, strawberry);
 
-        // Übergabe Bitmap von View in Strawberry-Klasse
+//        Übergabe Bitmap von View in Strawberry-Klasse
         this.strawberry.setBerryBitmap(this.view.getBerryBitmap());
 
         // Vollbildmodus der View, ab Android 4.4
@@ -108,7 +105,7 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
     }
 
     // Liest Displaygröße aus
-    private void getDisplaySize() {
+    private void readDisplaySize() {
         Display display = getWindowManager().getDefaultDisplay();
         displaySize = new Point();
         display.getSize(displaySize);
@@ -145,5 +142,14 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Nichts
+    }
+
+    // Getter und Setter
+    public void setDisplaySize(Point displaySize) {
+        this.displaySize = displaySize;
+    }
+
+    public Point getDisplaySize() {
+        return displaySize;
     }
 }

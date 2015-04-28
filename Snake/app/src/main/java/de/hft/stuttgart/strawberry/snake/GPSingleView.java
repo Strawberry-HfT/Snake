@@ -1,31 +1,25 @@
 package de.hft.stuttgart.strawberry.snake;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Verwaltet die Schlange und die Erdbeere.
  * Created by Tommy_2 on 26.03.2015.
  */
-public class GPSingleView extends View{
+public class GPSingleView extends TileView{
 
     // Variablen
     private Snake snake;
     private Strawberry strawberry;
 
+    // Bilddateien
     private Bitmap berryBitmap;
     private Bitmap snakeBitmap;
 
@@ -35,18 +29,22 @@ public class GPSingleView extends View{
          */
     public GPSingleView(Context context, Snake snake, Strawberry strawberry) {
         super(context);
+
         this.snake = snake;
         this.strawberry = strawberry;
         this.berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
-        this.setBackgroundResource(R.drawable.gameplay_background);
+
+        // TODO Wieder einkommentierten, zu Testzwecken auskommentiert
+//        this.setBackgroundResource(R.drawable.gameplay_background);
     }
 
     // Zeichnet die View
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         snake.drawSnakeDots(canvas);
-        strawberry.drawStrawberry(canvas, this.getBerryBitmap());
+//        strawberry.drawStrawberry(canvas, this.getBerryBitmap());
     }
 
     public Bitmap getBerryBitmap() {

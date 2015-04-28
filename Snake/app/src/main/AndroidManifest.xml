@@ -25,10 +25,11 @@
         android:normalScreens="true"
         android:largeScreens="true"
         android:xlargeScreens="true"
-        android:anyDensity="true"
-        android:requiresSmallestWidthDp="integer"
-        android:compatibleWidthLimitDp="integer"
-        android:largestWidthLimitDp="integer"/>
+        android:anyDensity="true"/>
+        <!--android:requiresSmallestWidthDp="integer"-->
+        <!--android:compatibleWidthLimitDp="integer"-->
+        <!--android:largestWidthLimitDp="integer"-->
+
 
     </application>
 
