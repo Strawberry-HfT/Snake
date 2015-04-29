@@ -51,19 +51,14 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
         // Liest Displaygröße und speichert sie lokal
         readDisplaySize();
 
-        // Initialisierung Variablen
-        this.snake = new Snake(3);
-        this.strawberry = new Strawberry(displaySize);
-        this.direction = new Movement();
-
         /*
          Initialisiert View
          Bekommt Activity, Schlange, Beere
           */
-        this.view = new GPSingleView(this, snake, strawberry);
+        this.view = new GPSingleView(this);
 
 //        Übergabe Bitmap von View in Strawberry-Klasse
-        this.strawberry.setBerryBitmap(this.view.getBerryBitmap());
+//        this.strawberry.setBerryBitmap(this.view.getBerryBitmap());
 
         // Vollbildmodus der View, ab Android 4.4
         view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -75,6 +70,11 @@ public class GPSingleActivity extends Activity implements SensorEventListener {
 
         // Verknüpft die Activity mit der View
         this.setContentView(view);
+
+        // Initialisierung Variablen (Schlange, Beere)
+        this.snake = new Snake(3, this.view.getmTileGrid());
+        this.strawberry = new Strawberry(displaySize);
+        this.direction = new Movement();
 
         // startet Timer
         startTimer();

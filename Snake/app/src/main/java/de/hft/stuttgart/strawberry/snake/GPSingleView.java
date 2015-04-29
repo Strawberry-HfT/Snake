@@ -15,9 +15,9 @@ import android.view.View;
  */
 public class GPSingleView extends TileView{
 
-    // Variablen
-    private Snake snake;
-    private Strawberry strawberry;
+//    // Variablen
+//    private Snake snake;
+//    private Strawberry strawberry;
 
     // Bilddateien
     private Bitmap berryBitmap;
@@ -27,11 +27,11 @@ public class GPSingleView extends TileView{
         Constructor der Context übergeben bekommt.
         Der Context ist die aufrufende Activity (GPSingleActivity)
          */
-    public GPSingleView(Context context, Snake snake, Strawberry strawberry) {
+    public GPSingleView(Context context) {
         super(context);
 
-        this.snake = snake;
-        this.strawberry = strawberry;
+//        this.snake = snake;
+//        this.strawberry = strawberry;
         this.berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
 
         // TODO Wieder einkommentierten, zu Testzwecken auskommentiert
@@ -43,7 +43,7 @@ public class GPSingleView extends TileView{
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        snake.drawSnakeDots(canvas);
+//        snake.drawSnakeDots(canvas);
 //        strawberry.drawStrawberry(canvas, this.getBerryBitmap());
     }
 
