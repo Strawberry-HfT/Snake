@@ -20,7 +20,7 @@ public class Strawberry {
     private Bitmap berryBitmap;
 
     // Constructor
-    public Strawberry(Point displaySize){
+    public Strawberry(){
         this.displaySize = displaySize;
         createBerryPosition();
     }

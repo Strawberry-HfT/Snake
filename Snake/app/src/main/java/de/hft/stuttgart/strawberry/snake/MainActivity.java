@@ -29,7 +29,6 @@ public class MainActivity extends ActionBarActivity {
     //Animationen
     private Animation animScale;
 
-
     // Variablen
     private int geschwindigkeit;
 

@@ -20,7 +20,7 @@ public class TileView extends View {
     private int tileSize;
 
     // Anzahl der Fließen
-    public final static int X_TILE_COUNT = 30;
+    public final static int X_TILE_COUNT = 34;
     public final static int Y_TILE_COUNT = 20;
 
     // Rand außerhalbt
@@ -45,11 +45,12 @@ public class TileView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Fliesen
+        // Spielfeld wird gezeichnet
         // Solange x kleiner als Anzahl der Fliesen horizontal
         for (int x = 0; x < X_TILE_COUNT; x += 1) {
             // Solange y kleiner als Anzahl der Fliesen vertikal
             for (int y = 0; y < Y_TILE_COUNT; y += 1) {
+                // Wenn Wert 0, dann normale Fliese
                 if (mTileGrid[x][y] == 0) {
                     // Zeichnet die Bitmaps, Rand + Fliesengröße * anzahl der Fließen in x oder y-Richtung
                     canvas.drawBitmap(this.bitmap,
@@ -57,6 +58,7 @@ public class TileView extends View {
                             mYOffset + y * tileSize,
                             mPaint);
                 } if (mTileGrid[x][y] == 2){
+                    // Wenn Wert zwei dann Schlangenelement
                     Bitmap snake = Bitmap.createBitmap(tileSize, tileSize, Bitmap.Config.ARGB_8888);
                     snake.eraseColor(Color.BLUE);
                     canvas.drawBitmap(snake,
@@ -66,7 +68,7 @@ public class TileView extends View {
                 }
             }
         }
-        // Setzt alle Fliesen des Spielfeldes wieder auf 0
+        // Setzt alle Fliesen des Spielfeldes wieder auf 0 nach jedem Zeichnen
         clearTiles();
     }
 
