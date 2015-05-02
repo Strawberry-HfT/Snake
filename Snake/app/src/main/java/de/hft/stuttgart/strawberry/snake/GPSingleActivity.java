@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.view.MotionEvent;
@@ -28,6 +30,9 @@ public class GPSingleActivity extends Activity {
     // Beere
     private Strawberry strawberry;
 
+    // Variable für Bewegung
+    private Movement direction;
+
     // Sensoren
     private Sensor sensorAccelorometer;
     private SensorManager sensorManager;
@@ -35,11 +40,13 @@ public class GPSingleActivity extends Activity {
     // Gestendetektor
     private GestureDetectorCompat gestureDetector;
 
-    // Variable für Bewegung
-    private Movement direction;
+    // Lenkung der Schlange, wenn true dann Rotationssensor
+    // Initialwert = false
+    private boolean lenkungSensor = false;
 
-    // Lenkung der Schlange
-    private boolean lenkungSensor;
+    // Musik
+    private boolean musik = true;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +72,7 @@ public class GPSingleActivity extends Activity {
 
         // Initialisierung Variablen (Schlange, Beere)
         this.snake = new Snake(3, this.view.getmTileGrid());
-//        this.strawberry = new Strawberry();
+        this.strawberry = new Strawberry(this.view.getmTileGrid());
         this.direction = new Movement();
 
         // startet Timer
@@ -81,6 +88,15 @@ public class GPSingleActivity extends Activity {
             // Gestensensor, registiert die Klasse als Context und den ausgelagerten Listener
             this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
         }
+
+        if (musik){
+            // Musik
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer = MediaPlayer.create(this, R.raw.background);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setLooping(true);
+            mediaPlayer.start();
+        }
     }
 
     // Startet Timer
@@ -93,7 +109,13 @@ public class GPSingleActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        strawberry.drawBerry();
                         snake.moveSnake(GPSingleActivity.this.direction);
+                        snake.checkCollisionBerry(strawberry);
+                        if(snake.checkCollisionSnake()){
+                            mediaPlayer.stop();
+                            finish();
+                        }
                         view.invalidate();
 
                     }

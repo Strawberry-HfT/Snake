@@ -35,7 +35,6 @@ public class Snake {
     }
 
     private void initStartPositions(int dots){
-
         // Berechnet koordinaten auf dem Spielfeld für dahinterligende Punkte
         for(int i = 0; i < dots; i++){
             // Startposition
@@ -98,6 +97,24 @@ public class Snake {
         for(int i = 0; i<position.size();i++){
             playingField[position.get(i).x][position.get(i).y]= 2;
         }
+}
+
+    public void checkCollisionBerry(Strawberry berry){
+        Point berryPosition = berry.getBerryPosition();
+        if(position.get(0).x == berryPosition.x && position.get(0).y == berryPosition.y){
+            position.add(new Point());
+            berry.createBerryPosition();
+        }
+    }
+
+    public boolean checkCollisionSnake(){
+        boolean collison = false;
+        for(int i = 1; i< position.size();i++){
+            if(position.get(0).x == position.get(i).x && this.position.get(0).y == position.get(i).y){
+                collison = true;
+            }
+        }
+        return collison;
     }
 
     // Setter und Getter

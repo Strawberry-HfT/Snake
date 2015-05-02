@@ -23,14 +23,15 @@ public class Movement {
     }
 
     public void setUp(boolean up) {
-        this.up = up;
-        // Wenn up == true
-        if(up){
-            this.down = false;
-            this.right = false;
-            this.left = false;
+        if(!this.down){
+            this.up = up;
+            // Wenn up == true
+            if(up){
+                this.down = false;
+                this.right = false;
+                this.left = false;
+            }
         }
-
     }
 
     public boolean isDown() {
@@ -38,12 +39,15 @@ public class Movement {
     }
 
     public void setDown(boolean down) {
-        this.down = down;
-        if(down){
-            this.up = false;
-            this.right = false;
-            this.left = false;
+        if(!this.up){
+            this.down = down;
+            if(down){
+                this.up = false;
+                this.right = false;
+                this.left = false;
+            }
         }
+
     }
 
     public boolean isRight() {
@@ -51,11 +55,13 @@ public class Movement {
     }
 
     public void setRight(boolean right) {
-        this.right = right;
-        if(right){
-            this.up = false;
-            this.down = false;
-            this.left = false;
+        if(!isLeft()) {
+            this.right = right;
+            if (right) {
+                this.up = false;
+                this.down = false;
+                this.left = false;
+            }
         }
     }
 
@@ -64,11 +70,13 @@ public class Movement {
     }
 
     public void setLeft(boolean left) {
-        this.left = left;
-        if(left){
-            this.up = false;
-            this.down = false;
-            this.right = false;
+        if(!isRight()){
+            this.left = left;
+            if(left){
+                this.up = false;
+                this.down = false;
+                this.right = false;
+            }
         }
     }
 }

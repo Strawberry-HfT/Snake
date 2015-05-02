@@ -1,7 +1,5 @@
 package de.hft.stuttgart.strawberry.snake;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Point;
 
 /**
@@ -10,68 +8,37 @@ import android.graphics.Point;
  */
 public class Strawberry {
 
-    // Positon der Beere
-    private Point berryPosition = new Point();
-
-    // Displaygröße
-    private Point displaySize;
-
-    // Bitmap Bild
-    private Bitmap berryBitmap;
+    // Spielfeld
+    private int [][] playingField;
+    private Point berryPosition;
 
     // Constructor
-    public Strawberry(){
-        this.displaySize = displaySize;
+    public Strawberry(int [][]playingField){
+        this.playingField = playingField;
+        this.berryPosition = new Point();
         createBerryPosition();
     }
 
-    // Zeichnen
-    public void drawStrawberry(Canvas canvas, Bitmap berryBitmap){
-        canvas.drawBitmap(berryBitmap,berryPosition.x, berryPosition.y, null);
-    }
-
-    private void createBerryPosition(){
-        int berryX;
-        int berryY;
+    public void createBerryPosition(){
 
         // Zufallspunkte
-        berryX = (int) (Math.random() * 50) * 38;
-        berryY = (int) (Math.random() * 50) * 18;
+        int xKoordinate = (int) ((Math.random()* TileView.X_TILE_COUNT-1));
+        int yKoordinate = (int) ((Math.random()* TileView.Y_TILE_COUNT-1));
 
-        // Wenn Beere am Rand, dann neu erstellen lassen
-        if(berryX >= displaySize.x || berryY >= displaySize.y){
+        // Prüft ob Wert auf Schlange erzeugt wird
+        if(playingField[xKoordinate][yKoordinate] != 2){
+            this.berryPosition.x = xKoordinate;
+            this.berryPosition.y = yKoordinate;
+        } else {
             createBerryPosition();
         }
-
-        // Übergibt die lokalen Werte in die globale Position
-        berryPosition.x = berryX;
-        berryPosition.y = berryY;
-
-        // TODO Prüfen ob Beere auf Schlange erstellt wird
     }
 
-    // Setter und Getter
+    public void drawBerry(){
+        this.playingField[berryPosition.x][berryPosition.y] = 1;
+    }
+
     public Point getBerryPosition() {
         return berryPosition;
-    }
-
-    public void setBerryPosition(Point berryPosition) {
-        this.berryPosition = berryPosition;
-    }
-
-    public Point getDisplaySize() {
-        return displaySize;
-    }
-
-    public void setDisplaySize(Point displaySize) {
-        this.displaySize = displaySize;
-    }
-
-    public Bitmap getBerryBitmap() {
-        return berryBitmap;
-    }
-
-    public void setBerryBitmap(Bitmap berryBitmap) {
-        this.berryBitmap = berryBitmap;
     }
 }

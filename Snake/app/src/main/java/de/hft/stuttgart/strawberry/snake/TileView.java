@@ -15,6 +15,7 @@ public class TileView extends View {
 
     // Bitmap
     private Bitmap bitmap;
+    private Bitmap berryBitmap;
 
     // Größe der Fließe
     private int tileSize;
@@ -62,6 +63,14 @@ public class TileView extends View {
                     Bitmap snake = Bitmap.createBitmap(tileSize, tileSize, Bitmap.Config.ARGB_8888);
                     snake.eraseColor(Color.BLUE);
                     canvas.drawBitmap(snake,
+                            mXOffset + x * tileSize,
+                            mYOffset + y * tileSize,
+                            mPaint);
+                } if (mTileGrid[x][y] == 1){
+                    // Wenn 1 dann Beere
+                    this.berryBitmap = Bitmap.createBitmap(tileSize, tileSize, Bitmap.Config.ARGB_8888);
+                    berryBitmap.eraseColor(Color.RED);
+                    canvas.drawBitmap(this.berryBitmap,
                             mXOffset + x * tileSize,
                             mYOffset + y * tileSize,
                             mPaint);
