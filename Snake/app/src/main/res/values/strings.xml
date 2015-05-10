@@ -1,6 +1,22 @@
 <resources>
+    <!-- App Name -->
     <string name="app_name">Snake</string>
 
+    <!-- ActionBar Settings Button -->
+    <string name="action_settings">Einstellungen</string>
 
-    <string name="action_settings">Settings</string>
+    <!-- Activity Bluetooth -->
+    <string name="bt_textView_header">Suche nach verf\u00FCgbaren Ger\u00E4ten</string>
+    <string name="title_activity_bluetooth_list">BluetoothListActivity</string>
+
+    <string name="scanning">Suche..</string>
+    <string name="select_device">Geraet ausw\u00E4hlen</string>
+
+    <string name="bt_new_devices">Verf\u00FCgbare Ger\u00E4te</string>
+    <string name="bt_paired_devices">Gepaarte Ger\u00E4te</string>
+    <string name="btn_scan">Nach Ger\u00E4ten Suchen</string>
+    <string name="btn_scan_pressed">Suche l\u00E4ft</string>
+
+    <string name="no_devices">Keine Ger\u00E4te gefunden</string>
+
 </resources>

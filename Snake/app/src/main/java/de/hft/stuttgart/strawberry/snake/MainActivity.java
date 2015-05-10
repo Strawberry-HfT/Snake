@@ -16,6 +16,8 @@ import android.widget.Button;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.hft.stuttgart.strawberry.activities.BluetoothActivity;
+
 /**
  * Main activity der Snake-Applikation
  */
@@ -143,7 +145,7 @@ public class MainActivity extends ActionBarActivity {
         multiplayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(MainActivity.this, "Noch nicht implementiert", Toast.LENGTH_SHORT).show();
+
                 //Startet die Button Animation
                 v.startAnimation(animScale);
 
@@ -155,7 +157,7 @@ public class MainActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Intent intent = new Intent(MainActivity.this, GPSingleActivity.class);
+                                Intent intent = new Intent(MainActivity.this, BluetoothActivity.class);
                                 startActivity(intent);
                             }
                         });
