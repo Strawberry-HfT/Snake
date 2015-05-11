@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -20,6 +21,19 @@ import java.util.TimerTask;
  * Created by Tommy_2 on 26.03.2015.
  */
 public class GPSingleActivity extends Activity {
+
+    // TAG für den Logger
+    private static final String TAG = GPSingleActivity.class.getSimpleName();
+
+    // Schwierigkeitsgrade
+    private static final int EASY = 1;
+    private static final int MEDIUM = 2;
+    private static final int HARD = 3;
+
+    int difficulty;
+
+    // Anfangslänge der Schlange
+    private static final int INIT_SNAKE_LENGTH = 3;
 
     // View in Activity
     private GPSingleView view;
@@ -45,8 +59,11 @@ public class GPSingleActivity extends Activity {
     private boolean lenkungSensor = false;
 
     // Musik
-    private boolean musik = true;
+    private boolean music = true;
     private MediaPlayer mediaPlayer;
+
+    // gesetze Spielgeschwindigkeit
+    private int selectedDifficulty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +71,9 @@ public class GPSingleActivity extends Activity {
 
         // Ausrichtung Bildschirm (wird festgehalten)
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        // Schwierigkeitsgradabhängige Werte setzten
+        this.initDifficulty();
 
 
         // Initialisiert View
@@ -71,7 +91,7 @@ public class GPSingleActivity extends Activity {
         this.setContentView(view);
 
         // Initialisierung Variablen (Schlange, Beere)
-        this.snake = new Snake(3, this.view.getmTileGrid());
+        this.snake = new Snake(INIT_SNAKE_LENGTH, this.view.getmTileGrid());
         this.strawberry = new Strawberry(this.view.getmTileGrid());
         this.direction = new Movement();
 
@@ -89,10 +109,8 @@ public class GPSingleActivity extends Activity {
             this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
         }
 
-        if (musik){
+        if (music){
             // Musik
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer = MediaPlayer.create(this, R.raw.background);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setLooping(true);
             mediaPlayer.start();
@@ -117,11 +135,54 @@ public class GPSingleActivity extends Activity {
                             finish();
                         }
                         view.invalidate();
-
                     }
                 });
             }
-        }, 0, 300);
+        }, 0, selectedDifficulty);
+    }
+
+    /*
+    Initialisiert die Werte, die von der Schwierigkeitsauswahl abhängen
+     */
+    private void initDifficulty() {
+        if (music) {
+            mediaPlayer = new MediaPlayer();
+        }
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            difficulty = extras.getInt("difficulty");
+            Log.d(TAG, "Selected Difficulty: " + difficulty);
+        } else {
+            difficulty = MEDIUM;
+            Log.d(TAG, "No Difficulty Selected");
+        }
+
+        switch (difficulty) {
+            case EASY:
+                selectedDifficulty = 300;
+                if (music) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audioeasy);
+                }
+                break;
+            case MEDIUM:
+                selectedDifficulty = 180;
+                if (music) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
+                }
+                break;
+            case HARD:
+                selectedDifficulty = 80;
+                if (music) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audiohard);
+                }
+                break;
+            default:
+                selectedDifficulty = 300;
+                if (music) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
+                }
+                break;
+        }
     }
 
     // Überschreiben aus Superklasse, zum Registrieren der Gesten
@@ -131,12 +192,14 @@ public class GPSingleActivity extends Activity {
         return super.onTouchEvent(event);
     }
 
+    // Überschreiben aus Superklasse, zum stoppen der Spielmusik
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mediaPlayer.stop();
     }
 
+    // Überschreiben aus Superklasse, zum stoppen der Spielmusik
     @Override
     protected void onPause() {
         super.onPause();

@@ -15,6 +15,9 @@ import android.widget.Toast;
  */
 public class DifficultyFragement extends DialogFragment {
 
+    // TAG für den Logger
+    private static final String TAG = DifficultyFragement.class.getSimpleName();
+
     // View zum Fragment
     private View myInflatedView;
 
