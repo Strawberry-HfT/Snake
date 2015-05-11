@@ -30,7 +30,7 @@ public class BluetoothActivity extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 2;
 
-    private static final String TAG = Activity.class.getSimpleName();
+    private static final String TAG = BluetoothActivity.class.getSimpleName();
 
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
 
@@ -107,11 +107,11 @@ public class BluetoothActivity extends Activity {
             findViewById(R.id.header_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
                 pairedDevicesAdapter.add(device.getName());
-                Log.i(TAG, "Found Paired Device: " + device.getName());
+                Log.d(TAG, "Found Paired Device: " + device.getName());
             }
         } else {
             pairedDevicesAdapter.add(getResources().getText(R.string.no_devices).toString());
-            Log.i(TAG, getResources().getText(R.string.no_devices).toString());
+            Log.d(TAG, getResources().getText(R.string.no_devices).toString());
         }
     }
 
@@ -139,7 +139,7 @@ public class BluetoothActivity extends Activity {
 
         // Suche starten
         myBTAdapter.startDiscovery();
-        Log.i(TAG, "startDiscovery()");
+        Log.d(TAG, "startDiscovery()");
     }
 
     /*
@@ -198,7 +198,7 @@ public class BluetoothActivity extends Activity {
                 // nur in die Liste neuer Geräte setzten, falls die noch nicht gepaart wurden
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     newDevicesAdapter.add(device.getName() + "\n" + device.getAddress());
-                    Log.i(TAG, "Found new Device: " + device.getName());
+                    Log.d(TAG, "Found new Device: " + device.getName());
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 //TODO funktioniert noch nicht, mach ich noch
@@ -214,18 +214,5 @@ public class BluetoothActivity extends Activity {
             }
         }
     };
-
-    /*
-    Button-Text setzen
-     */
-    public String getButtonText(boolean btnBeenPressed) {
-        String btnText = "";
-        if (btnBeenPressed) {
-            btnText = (String) getResources().getText(R.string.btn_scan_pressed);
-        } else {
-            btnText = (String) getResources().getText(R.string.btn_scan);
-        }
-        return btnText;
-    }
 
 }
