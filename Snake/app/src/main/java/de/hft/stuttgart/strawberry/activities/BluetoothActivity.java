@@ -22,9 +22,13 @@ import java.util.Set;
 
 import de.hft.stuttgart.strawberry.snake.R;
 
+/**
+ * Diese Klasse listet Bluetooth-Geräte auf und verwaltet
+ * die Paarung für den Multiplayer.
+ */
 public class BluetoothActivity extends Activity {
 
-    private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_ENABLE_BT = 2;
 
     private static final String TAG = Activity.class.getSimpleName();
 
@@ -32,9 +36,11 @@ public class BluetoothActivity extends Activity {
 
     private BluetoothAdapter myBTAdapter;
 
-    private ArrayAdapter<String> pairedDevicesAdaptder;
+    private ArrayAdapter<String> pairedDevicesAdapter;
 
     private ArrayAdapter<String> newDevicesAdapter;
+
+    private Button btnScan;
 
     /*
     Standard onCreate Methode
@@ -48,21 +54,23 @@ public class BluetoothActivity extends Activity {
         setResult(Activity.RESULT_CANCELED);
 
         // Such-Button initialisieren
-        final Button btnScan = (Button) findViewById(R.id.btn_scan);
+        btnScan = (Button) findViewById(R.id.btn_scan);
+
+        // Button-ClickListener
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                discoverDevices();
+                findDevices();
             }
         });
 
         // Adapter für die ListViews initialisieren
-        pairedDevicesAdaptder = new ArrayAdapter<>(this, R.layout.tv_device_name);
+        pairedDevicesAdapter = new ArrayAdapter<>(this, R.layout.tv_device_name);
         newDevicesAdapter = new ArrayAdapter<>(this, R.layout.tv_device_name);
 
         // ListView für gepaarte Geräte initialisieren
         ListView pairedListView = (ListView) findViewById(R.id.lv_paired_devices);
-        pairedListView.setAdapter(pairedDevicesAdaptder);
+        pairedListView.setAdapter(pairedDevicesAdapter);
         pairedListView.setOnItemClickListener(selectDeviceClickListener);
 
         // ListView für neue Geräte initialisieren
@@ -98,11 +106,11 @@ public class BluetoothActivity extends Activity {
             // Titel einblenden
             findViewById(R.id.header_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
-                pairedDevicesAdaptder.add(device.getName());
-                Log.i(TAG, "Paired Device: " + device.getName());
+                pairedDevicesAdapter.add(device.getName());
+                Log.i(TAG, "Found Paired Device: " + device.getName());
             }
         } else {
-            pairedDevicesAdaptder.add(getResources().getText(R.string.no_devices).toString());
+            pairedDevicesAdapter.add(getResources().getText(R.string.no_devices).toString());
             Log.i(TAG, getResources().getText(R.string.no_devices).toString());
         }
     }
@@ -110,12 +118,16 @@ public class BluetoothActivity extends Activity {
     /*
     Sucht nach Geräten in Reichweite
      */
-    private void discoverDevices() {
+    private void findDevices() {
+        // TODO funktioniert noch nicht, mach ich noch
         setProgressBarIndeterminateVisibility(true);
         setTitle(R.string.scanning);
 
         // Liste aus letzter Suche leeren
         newDevicesAdapter.clear();
+
+        // Button ausblenden
+        btnScan.setVisibility(View.GONE);
 
         // Titel einblenden
         findViewById(R.id.header_new_devices).setVisibility(View.VISIBLE);
@@ -127,7 +139,7 @@ public class BluetoothActivity extends Activity {
 
         // Suche starten
         myBTAdapter.startDiscovery();
-
+        Log.i(TAG, "startDiscovery()");
     }
 
     /*
@@ -189,8 +201,12 @@ public class BluetoothActivity extends Activity {
                     Log.i(TAG, "Found new Device: " + device.getName());
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                //TODO funktioniert noch nicht, mach ich noch
                 setProgressBarIndeterminateVisibility(false);
                 setTitle(R.string.select_device);
+
+                // Button einblenden
+                btnScan.setVisibility(View.VISIBLE);
 
                 if (newDevicesAdapter.getCount() == 0) {
                     newDevicesAdapter.add(getResources().getText(R.string.no_devices).toString());
@@ -198,5 +214,18 @@ public class BluetoothActivity extends Activity {
             }
         }
     };
+
+    /*
+    Button-Text setzen
+     */
+    public String getButtonText(boolean btnBeenPressed) {
+        String btnText = "";
+        if (btnBeenPressed) {
+            btnText = (String) getResources().getText(R.string.btn_scan_pressed);
+        } else {
+            btnText = (String) getResources().getText(R.string.btn_scan);
+        }
+        return btnText;
+    }
 
 }

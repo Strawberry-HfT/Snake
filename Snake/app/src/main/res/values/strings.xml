@@ -14,8 +14,7 @@
 
     <string name="bt_new_devices">Verf\u00FCgbare Ger\u00E4te</string>
     <string name="bt_paired_devices">Gepaarte Ger\u00E4te</string>
-    <string name="btn_scan">Nach Ger\u00E4ten Suchen</string>
-    <string name="btn_scan_pressed">Suche l\u00E4ft</string>
+    <string name="btn_scan">Suche starten</string>
 
     <string name="no_devices">Keine Ger\u00E4te gefunden</string>
 

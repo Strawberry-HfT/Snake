@@ -130,4 +130,16 @@ public class GPSingleActivity extends Activity {
         gestureDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaPlayer.stop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mediaPlayer.stop();
+    }
 }
