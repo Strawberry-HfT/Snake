@@ -5,6 +5,11 @@
     <!-- ActionBar Settings Button -->
     <string name="action_settings">Einstellungen</string>
 
+    <!-- Activity Main -->
+    <string name="singleplayer">Singleplayer</string>
+    <string name="multiplayer">Multiplayer</string>
+    <string name="exit">Exit</string>
+
     <!-- Activity Bluetooth -->
     <string name="bt_textView_header">Suche nach verf\u00FCgbaren Ger\u00E4ten</string>
     <string name="title_activity_bluetooth_list">BluetoothListActivity</string>

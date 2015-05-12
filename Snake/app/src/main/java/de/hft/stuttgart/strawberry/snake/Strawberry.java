@@ -2,6 +2,8 @@ package de.hft.stuttgart.strawberry.snake;
 
 import android.graphics.Point;
 
+import de.hft.stuttgart.strawberry.views.TileView;
+
 /**
  * Created by Tommy_2 on 06.04.2015.
  * Erstellt die Erdbeere als Objekt

@@ -1,12 +1,10 @@
 package de.hft.stuttgart.strawberry.snake;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
-import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import de.hft.stuttgart.strawberry.views.TileView;
 
 /**
  * Created by Tommy_2 on 26.03.2015.

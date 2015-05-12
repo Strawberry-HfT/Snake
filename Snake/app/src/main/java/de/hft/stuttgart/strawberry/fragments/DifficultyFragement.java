@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.snake;
+package de.hft.stuttgart.strawberry.fragments;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import de.hft.stuttgart.strawberry.activities.MainActivity;
+import de.hft.stuttgart.strawberry.snake.R;
 
 /**
  * Created by Juliano on 26.03.2015.

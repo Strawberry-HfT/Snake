@@ -22,9 +22,7 @@
         android:paddingEnd="5sp"
         android:textColor="#000"
         android:textSize="18sp" />
-    <!--android:layout_alignParentStart="true" -->
-
-
+    
     <TextView
         android:id="@+id/header_paired_devices"
         android:text="@string/bt_paired_devices"
@@ -36,9 +34,6 @@
         android:visibility="visible"
         android:textColor="#fff"
         android:textSize="16sp" />
-        <!--android:layout_below="@+id/bt_header_text"-->
-        <!--android:layout_alignParentStart="true"-->
-
 
     <ListView
         android:id="@+id/lv_paired_devices"
@@ -48,9 +43,6 @@
         android:background="@color/switch_thumb_normal_material_dark"
         android:stackFromBottom="false"
         android:layout_marginTop="15sp" />
-        <!--android:layout_below="@+id/header_paired_devices"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_alignParentEnd="true" -->
 
     <TextView
         android:id="@+id/header_new_devices"
@@ -63,8 +55,6 @@
         android:visibility="visible"
         android:textColor="#fff"
         android:textSize="16sp" />
-        <!--android:layout_below="@+id/lv_paired_devices"-->
-        <!--android:layout_alignParentStart="true" -->
 
     <ListView
         android:id="@+id/lv_new_devices"
@@ -74,15 +64,19 @@
         android:background="@color/switch_thumb_normal_material_dark"
         android:stackFromBottom="false"
         android:layout_marginTop="15sp" />
-        <!--android:layout_below="@+id/header_new_devices"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_alignParentEnd="true" -->
 
     <Button
         android:id="@+id/btn_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#525252"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
         android:text="@string/btn_scan"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
         />
 
 </LinearLayout>

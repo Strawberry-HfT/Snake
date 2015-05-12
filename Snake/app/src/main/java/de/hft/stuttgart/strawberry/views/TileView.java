@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.snake;
+package de.hft.stuttgart.strawberry.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -1,19 +1,17 @@
-package de.hft.stuttgart.strawberry.snake;
+package de.hft.stuttgart.strawberry.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.util.Log;
-import android.view.View;
+
+import de.hft.stuttgart.strawberry.snake.R;
 
 /**
  * Verwaltet die Schlange und die Erdbeere.
  * Created by Tommy_2 on 26.03.2015.
  */
-public class GPSingleView extends TileView{
+public class GPSingleView extends TileView {
 
 //    // Variablen
 //    private Snake snake;

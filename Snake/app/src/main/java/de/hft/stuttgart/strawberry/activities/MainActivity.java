@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.snake;
+package de.hft.stuttgart.strawberry.activities;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -16,12 +16,16 @@ import android.widget.Button;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.hft.stuttgart.strawberry.activities.BluetoothActivity;
+import de.hft.stuttgart.strawberry.fragments.DifficultyFragement;
+import de.hft.stuttgart.strawberry.snake.R;
 
 /**
  * Main activity der Snake-Applikation
  */
 public class MainActivity extends ActionBarActivity {
+
+    // TAG für den Logger
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     //Buttons
     private Button singleplayer;
@@ -57,8 +61,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /*
-        Beim Erstellen der OptionBar
-         */
+    Beim Erstellen der OptionBar
+    */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
