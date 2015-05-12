@@ -1,0 +1,66 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:background="@drawable/background_main">
+
+    <Button
+        android:id="@+id/singleplayer"
+
+        android:text="Singleplayer"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+
+        android:layout_width="400dp"
+        android:layout_height="88dp"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#525252"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        android:layout_marginTop="316dp"
+        android:layout_gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/multiplayer"
+
+        android:text="Multiplayer"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+
+        android:layout_width="400dp"
+        android:layout_height="88dp"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#525252"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        android:layout_marginTop="110dp"
+        android:layout_below="@+id/singleplayer"
+        android:layout_alignLeft="@+id/exit"
+        android:layout_alignStart="@+id/exit" />
+
+    <Button
+        android:id="@+id/exit"
+
+        android:text="Exit"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+
+        android:layout_width="400dp"
+        android:layout_height="88dp"
+        android:background="@drawable/buttonshape"
+        android:shadowColor="#525252"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="5"
+        android:layout_marginTop="110dp"
+        android:layout_below="@+id/multiplayer"
+        android:layout_alignLeft="@+id/singleplayer"
+        android:layout_alignStart="@+id/singleplayer" />
+
+</RelativeLayout>
