@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.snake;
+package de.hft.stuttgart.strawberry.common;
 
 /**
  * Created by Juliano on 08.04.2015.

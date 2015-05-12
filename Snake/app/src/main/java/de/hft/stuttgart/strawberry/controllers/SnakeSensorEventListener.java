@@ -4,7 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
-import de.hft.stuttgart.strawberry.snake.Movement;
+import de.hft.stuttgart.strawberry.common.Movement;
 
 /**
  * Created by Juliano on 02.05.2015.

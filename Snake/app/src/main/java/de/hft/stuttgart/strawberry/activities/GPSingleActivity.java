@@ -16,12 +16,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hft.stuttgart.strawberry.views.GPSingleView;
-import de.hft.stuttgart.strawberry.snake.Movement;
+import de.hft.stuttgart.strawberry.common.Movement;
 import de.hft.stuttgart.strawberry.snake.R;
 import de.hft.stuttgart.strawberry.snake.Snake;
 import de.hft.stuttgart.strawberry.controllers.SnakeGestureListener;
 import de.hft.stuttgart.strawberry.controllers.SnakeSensorEventListener;
-import de.hft.stuttgart.strawberry.snake.Strawberry;
+import de.hft.stuttgart.strawberry.common.Strawberry;
 
 /**
  * Von hier aus wird das Game-Play des

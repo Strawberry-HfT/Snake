@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.snake;
+package de.hft.stuttgart.strawberry.common;
 
 import android.graphics.Point;
 
