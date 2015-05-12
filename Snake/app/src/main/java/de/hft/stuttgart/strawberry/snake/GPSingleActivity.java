@@ -75,7 +75,6 @@ public class GPSingleActivity extends Activity {
         // Schwierigkeitsgradabhängige Werte setzten
         this.initDifficulty();
 
-
         // Initialisiert View
         this.view = new GPSingleView(this);
 
