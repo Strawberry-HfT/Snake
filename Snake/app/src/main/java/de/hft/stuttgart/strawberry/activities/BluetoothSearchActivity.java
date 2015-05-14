@@ -26,11 +26,11 @@ import de.hft.stuttgart.strawberry.snake.R;
  * Diese Klasse listet Bluetooth-Geräte auf und verwaltet
  * die Paarung für den Multiplayer.
  */
-public class BluetoothActivity extends Activity {
+public class BluetoothSearchActivity extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 2;
 
-    private static final String TAG = BluetoothActivity.class.getSimpleName();
+    private static final String TAG = BluetoothSearchActivity.class.getSimpleName();
 
     public static String EXTRA_DEVICE_ADDRESS = "device_address";
 

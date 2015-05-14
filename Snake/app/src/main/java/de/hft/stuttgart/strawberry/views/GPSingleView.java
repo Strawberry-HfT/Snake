@@ -28,8 +28,6 @@ public class GPSingleView extends TileView {
     public GPSingleView(Context context) {
         super(context);
 
-//        this.snake = snake;
-//        this.strawberry = strawberry;
         this.berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
 
         // TODO Wieder einkommentierten, zu Testzwecken auskommentiert

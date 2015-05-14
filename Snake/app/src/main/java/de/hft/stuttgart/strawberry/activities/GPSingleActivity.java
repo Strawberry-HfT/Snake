@@ -26,7 +26,6 @@ import de.hft.stuttgart.strawberry.common.Strawberry;
 /**
  * Von hier aus wird das Game-Play des
  * Singleplayermodus ausgefuehrt.
- * Created by Tommy_2 on 26.03.2015.
  */
 public class GPSingleActivity extends Activity {
 
