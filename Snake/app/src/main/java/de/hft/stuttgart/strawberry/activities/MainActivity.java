@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,6 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hft.stuttgart.strawberry.fragments.DifficultyFragement;
+import de.hft.stuttgart.strawberry.fragments.GPMultiFragment;
 import de.hft.stuttgart.strawberry.snake.R;
 
 /**
@@ -35,8 +34,11 @@ public class MainActivity extends ActionBarActivity {
     //Animationen
     private Animation animScale;
 
-    // Variablen
-    private int geschwindigkeit;
+    // Schwierigkeitsgrad
+    private int selectedDifficulty;
+
+    // Wert für Singleplayermodus
+    private boolean fromSingleplayer;
 
     /*
     Methode wird beim Start der Applikation aufgerufen
@@ -61,34 +63,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /*
-    Beim Erstellen der OptionBar
-    */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    /*
-    Trigger der gewählten Option
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    /*
     initialisiert Widgets
      */
     private void initWidgets(){
@@ -96,6 +70,7 @@ public class MainActivity extends ActionBarActivity {
         multiplayer = (Button) findViewById(R.id.multiplayer);
         exit = (Button) findViewById(R.id.exit);
         animScale = AnimationUtils.loadAnimation(this, R.anim.anim_scale);
+        fromSingleplayer = false;
     }
 
     /*
@@ -123,6 +98,9 @@ public class MainActivity extends ActionBarActivity {
                             public void run() {
                                 // Erzeugen des Fragments
                                 DifficultyFragement difficultyFragement = new DifficultyFragement();
+
+                                // Singleplayer setzen
+                                fromSingleplayer = true;
 
                                 // Bundle zur Übergabe von Parametern
                                 Bundle bundle = new Bundle();
@@ -161,8 +139,26 @@ public class MainActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Intent intent = new Intent(MainActivity.this, BluetoothActivity.class);
-                                startActivity(intent);
+                                // Erzeugen des Fragments
+                                DifficultyFragement difficultyFragement = new DifficultyFragement();
+
+                                // Singleplayer setzen
+                                fromSingleplayer = false;
+
+                                // Bundle zur Übergabe von Parametern
+                                Bundle bundle = new Bundle();
+
+                                // Parameterübergabe in das Fragment
+                                difficultyFragement.setArguments(bundle);
+
+                                // Lädt den Fragmentmanager der Activity
+                                FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
+
+                                // Startet die Transaction des Fragments
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                                // Zeigt das Fragment an
+                                difficultyFragement.show(fragmentTransaction, "test");
                             }
                         });
                     }
@@ -194,14 +190,25 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    /*
+    Gewählte Geschwindigkeit setzen und Spiel-Activity starten
+     */
     public void onLevelSelected(int level) {
-        geschwindigkeit = level;
-        Intent intent = new Intent(this, GPSingleActivity.class);
+        selectedDifficulty = level;
+        Intent intent = null;
+
+        if (fromSingleplayer) {
+            intent = new Intent(this, GPSingleActivity.class);
+        } else {
+            intent = new Intent(this, GPMultiActivity.class);
+        }
         intent.putExtra("difficulty", level);
         startActivity(intent);
     }
 
-    // Getter und Setter
+    /*
+     Getter und Setter
+      */
     public Button getMultiplayer() {
         return multiplayer;
     }
@@ -226,11 +233,11 @@ public class MainActivity extends ActionBarActivity {
         this.exit = exit;
     }
 
-    public int getGeschwindigkeit() {
-        return geschwindigkeit;
+    public int getSelectedDifficulty() {
+        return selectedDifficulty;
     }
 
-    public void setGeschwindigkeit(int geschwindigkeit) {
-        this.geschwindigkeit = geschwindigkeit;
+    public void setSelectedDifficulty(int selectedDifficulty) {
+        this.selectedDifficulty = selectedDifficulty;
     }
 }

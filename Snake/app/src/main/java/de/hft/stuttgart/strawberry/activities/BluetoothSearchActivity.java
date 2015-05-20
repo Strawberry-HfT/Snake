@@ -32,7 +32,7 @@ public class BluetoothSearchActivity extends Activity {
 
     private static final String TAG = BluetoothSearchActivity.class.getSimpleName();
 
-    public static String EXTRA_DEVICE_ADDRESS = "device_address";
+    public static final String EXTRA_DEVICE_ADDRESS = "device_address";
 
     private BluetoothAdapter myBTAdapter;
 
@@ -89,17 +89,6 @@ public class BluetoothSearchActivity extends Activity {
         // Adapter für die App holen
         myBTAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // Meldung falls das Gerät kein Bluetooth unterstützt
-        if (myBTAdapter == null) {
-            Toast.makeText(this, "Bluetooth ist nicht verfügbar", Toast.LENGTH_LONG).show();
-        }
-
-        // Bluetooth aktivieren lassen, falls nicht aktiviert
-        if (!myBTAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-
         // Liste mit bereits gepaarten Geräten sammeln
         Set<BluetoothDevice> pairedDevices = myBTAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
@@ -119,7 +108,7 @@ public class BluetoothSearchActivity extends Activity {
     Sucht nach Geräten in Reichweite
      */
     private void findDevices() {
-        // TODO funktioniert noch nicht, mach ich noch
+        // TODO die setter hier funktionieren noch nicht, mach ich noch
         setProgressBarIndeterminateVisibility(true);
         setTitle(R.string.scanning);
 

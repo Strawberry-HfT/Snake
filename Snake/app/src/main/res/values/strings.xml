@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- App Name -->
     <string name="app_name">Snake</string>
 
@@ -6,21 +6,27 @@
     <string name="action_settings">Einstellungen</string>
 
     <!-- Activity Main -->
+    <string name="title_activity_main">MainActivity</string>
     <string name="singleplayer">Singleplayer</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="exit">Exit</string>
 
-    <!-- Activity Bluetooth -->
-    <string name="bt_textView_header">Suche nach verf\u00FCgbaren Ger\u00E4ten</string>
+    <!-- Activity Singleplayer -->
+    <string name="title_activity_singleplayer">GPSingleActivity</string>
+
+    <!-- Activity Bluetooth Search -->
     <string name="title_activity_bluetooth_list">BluetoothListActivity</string>
-
+    <string name="bt_textView_header">Suche nach verf\u00FCgbaren Ger\u00E4ten</string>
     <string name="scanning">Suche..</string>
-    <string name="select_device">Geraet ausw\u00E4hlen</string>
-
+    <string name="select_device">Ger\u00E4t ausw\u00E4hlen</string>
     <string name="bt_new_devices">Verf\u00FCgbare Ger\u00E4te</string>
     <string name="bt_paired_devices">Gepaarte Ger\u00E4te</string>
     <string name="btn_scan">Suche starten</string>
-
     <string name="no_devices">Keine Ger\u00E4te gefunden</string>
+    <string name="bt_not_available">"Bluetooth ist nicht verf\u00FCgbar"</string>
+
+    <!-- Activity Multiplayer -->
+    <string name="title_activity_multiplayer">GPMultiActivityActivity</string>
+    <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
 
 </resources>

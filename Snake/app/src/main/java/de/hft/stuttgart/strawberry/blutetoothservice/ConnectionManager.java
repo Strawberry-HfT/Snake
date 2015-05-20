@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.blutetoothservicethreads;
+package de.hft.stuttgart.strawberry.blutetoothservice;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
@@ -24,16 +24,19 @@ public class ConnectionManager extends Thread {
     private static final String TAG = ConnectionManager.class.getSimpleName();
 
     // Das Socket für die clientseitige Verbindung
-    private final BluetoothSocket mmSocket;
+    private final BluetoothSocket mSocket;
 
     // InputStream für eingehende Daten
-    private final InputStream mmInputStream;
+    private final InputStream mInputStream;
 
     // OutputStream für eingehende Daten
-    private final OutputStream mmnOutputStream;
+    private final OutputStream mOutputStream;
 
     // Handler
-    private final Handler mmHandler;
+    private final Handler mHandler;
+
+    // Der Service
+    private BluetoothService mService;
 
     /*
     Standard-Konstruktor für diesen Thread
@@ -42,10 +45,10 @@ public class ConnectionManager extends Thread {
         Log.d(TAG, "create Thread ConnectionManager");
 
         // Socket setzen
-        mmSocket = socket;
+        mSocket = socket;
 
         // Handler setzen
-        mmHandler = handler;
+        mHandler = handler;
 
         // Temporäre Input-/ OutputStream initialisieren
         InputStream tmpInputStream = null;
@@ -60,8 +63,8 @@ public class ConnectionManager extends Thread {
         }
 
         // bei Erfolg, Streams setzen
-        mmInputStream = tmpInputStream;
-        mmnOutputStream = tmpOutputStream;
+        mInputStream = tmpInputStream;
+        mOutputStream = tmpOutputStream;
 
     }
 
@@ -83,17 +86,17 @@ public class ConnectionManager extends Thread {
         while (true) {
             try {
                 // Aus InputStream einlesen
-                bytes = mmInputStream.read(buffer);
+                bytes = mInputStream.read(buffer);
 
-                // erhaltene bytes an das UI senden TODO: brauchen wir hier nicht hab ich erst mal nur aus dem Beispiel
-                mmHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
+                // erhaltene Daten an das UI senden
+                mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
                         .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "devices disconnected");
                 connectionLost();
 
                 // Start the service over to restart listening mode
-                //TODO hier muss die Methode start() aufgerufen werden
+
 
                 break;
             }
@@ -106,7 +109,7 @@ public class ConnectionManager extends Thread {
     public void write(byte[] buffer) {
         try {
             // Positionen senden
-            mmnOutputStream.write(buffer);
+            mOutputStream.write(buffer);
             Log.i(TAG, "sent Positions to device");
         } catch (IOException e) {
             Log.e(TAG, "could not send Position to other device", e);
@@ -118,7 +121,7 @@ public class ConnectionManager extends Thread {
      */
     public void cancel() {
         try {
-            mmSocket.close();
+            mSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Could not close socket to Bluetooth device", e);
         }
@@ -127,11 +130,11 @@ public class ConnectionManager extends Thread {
     // TODO muss noch in die Activity ausgelagert werden, ist hier falsch
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = mmHandler.obtainMessage(Constants.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.TOAST, "Device connection was lost");
         msg.setData(bundle);
-        mmHandler.sendMessage(msg);
+        mHandler.sendMessage(msg);
     }
 
 

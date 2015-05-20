@@ -4,6 +4,8 @@ import android.graphics.Point;
 
 import java.util.ArrayList;
 
+import de.hft.stuttgart.strawberry.common.Movement;
+import de.hft.stuttgart.strawberry.common.Strawberry;
 import de.hft.stuttgart.strawberry.views.TileView;
 
 /**

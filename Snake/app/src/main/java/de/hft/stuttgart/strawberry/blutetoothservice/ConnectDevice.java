@@ -1,4 +1,4 @@
-package de.hft.stuttgart.strawberry.blutetoothservicethreads;
+package de.hft.stuttgart.strawberry.blutetoothservice;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -40,12 +40,15 @@ public class ConnectDevice extends Thread {
     private BluetoothAdapter mmBluetoothAdapter;
 
     // Handler
-    private final Handler mmHandler;
+    private final Handler mHandler;
+
+    // Bluetooth Service
+    BluetoothService mService;
 
     /*
     Standard Konstruktor für diesen Thread
      */
-    public ConnectDevice (BluetoothDevice device, boolean secure, BluetoothAdapter mBluetoothAdapter, Handler handler) {
+    public ConnectDevice (BluetoothDevice device, boolean secure, BluetoothAdapter mBluetoothAdapter, Handler handler, BluetoothService service) {
 
         // Remote-Gerät setzen
         mmDevice = device;
@@ -54,7 +57,10 @@ public class ConnectDevice extends Thread {
         mmBluetoothAdapter = mBluetoothAdapter;
 
         // Handler setzen
-        mmHandler = handler;
+        mHandler = handler;
+
+        // Service setzen
+        mService = service;
 
         BluetoothSocket tmpBtSocket = null;
 
@@ -100,13 +106,13 @@ public class ConnectDevice extends Thread {
             connectionFailed();
         }
 
-        //TODO HIER WEITERMACHEN -> nächsten Thread erstellen und dann die Multiplayer Activity
-        // Diesen Thread zurücksetzten, da fertig
-        //TODO muss wohl in der Activity selbst gemacht werden
-        // TODO siehe BluetoothChat -> BluetoothChatService Line 426
 
-        // ConnectedDevice Thread starten
-        //TODO im Beispiel wird hier der nächste Thread gestartet wir müssen das aber in der Activity
+        // Accept-Thread zurücksetzten, da fertig
+        mService.closeAcceptThread();
+
+        // ConnectionManager Thread starten
+        ConnectionManager manager = mService.getConnectionManagerThread();
+        manager.start();
     }
 
     /*
@@ -127,11 +133,11 @@ public class ConnectDevice extends Thread {
     private void connectionFailed() {
 
         // Fehlermeldung an das UI senden
-        Message msg = mmHandler.obtainMessage(Constants.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.TOAST, "Unable to connect device");
         msg.setData(bundle);
-        mmHandler.sendMessage(msg);
+        mHandler.sendMessage(msg);
 
         // Wieder zum Anfang der Bluetoothverbindung
         //TODO hier muss die Mehtode start() aufgerufen werden

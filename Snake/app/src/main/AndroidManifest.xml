@@ -15,14 +15,25 @@
         <!-- Activities -->
         <activity
             android:name="de.hft.stuttgart.strawberry.activities.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="de.hft.stuttgart.strawberry.activities.GPSingleActivity" />
+        <activity
+            android:name="de.hft.stuttgart.strawberry.activities.GPSingleActivity"
+            android:label="@string/title_activity_singleplayer" >
+        </activity>
+        <activity
+            android:name="de.hft.stuttgart.strawberry.activities.BluetoothSearchActivity"
+            android:label="@string/title_activity_bluetooth_list" >
+        </activity>
+        <activity
+            android:name="de.hft.stuttgart.strawberry.activities.GPMultiActivity"
+            android:label="@string/title_activity_multiplayer" >
+        </activity>
 
         <supports-screens
             android:anyDensity="true"
@@ -31,14 +42,6 @@
             android:resizeable="true"
             android:smallScreens="true"
             android:xlargeScreens="true" />
-        <!-- android:requiresSmallestWidthDp="integer" -->
-        <!-- android:compatibleWidthLimitDp="integer" -->
-        <!-- android:largestWidthLimitDp="integer" -->
-
-        <activity
-            android:name="de.hft.stuttgart.strawberry.activities.BluetoothSearchActivity"
-            android:label="@string/title_activity_bluetooth_list" >
-        </activity>
     </application>
 
 </manifest>
