@@ -2,31 +2,30 @@
     <!-- App Name -->
     <string name="app_name">Snake</string>
 
-    <!-- ActionBar Settings Button -->
-    <string name="action_settings">Einstellungen</string>
-
     <!-- Activity Main -->
-    <string name="title_activity_main">MainActivity</string>
     <string name="singleplayer">Singleplayer</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="exit">Exit</string>
 
-    <!-- Activity Singleplayer -->
-    <string name="title_activity_singleplayer">GPSingleActivity</string>
-
     <!-- Activity Bluetooth Search -->
-    <string name="title_activity_bluetooth_list">BluetoothListActivity</string>
     <string name="bt_textView_header">Suche nach verf\u00FCgbaren Ger\u00E4ten</string>
-    <string name="scanning">Suche..</string>
+    <string name="scanning">Suche\u002E\u002E</string>
     <string name="select_device">Ger\u00E4t ausw\u00E4hlen</string>
     <string name="bt_new_devices">Verf\u00FCgbare Ger\u00E4te</string>
     <string name="bt_paired_devices">Gepaarte Ger\u00E4te</string>
-    <string name="btn_scan">Suche starten</string>
     <string name="no_devices">Keine Ger\u00E4te gefunden</string>
     <string name="bt_not_available">"Bluetooth ist nicht verf\u00FCgbar"</string>
+    <string name="start_search">Suche starten</string>
 
-    <!-- Activity Multiplayer -->
-    <string name="title_activity_multiplayer">GPMultiActivityActivity</string>
-    <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
+    <!-- Activity Lobby -->
+    <string name="lets_go">Los Gehts\u0021</string>
+    <string name="wait_for_dude">Warten auf Mitspieler\u002E\u002E\u002E</string>
+    <string name="no_dude_selected">Mit keinem Spieler Verbunden</string>
+    <string name="title_connected_to">verbunden mit <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="not_discoverable">Du bist f\u00FCr andere nicht sichtbar</string>
+    <string name="error_leave_app">Fehler bei der Verbindung\u002C verlasse App</string>
+    <string name="no_device_selected">Kein Ger\u00E4t ausgew\u00E4hlt</string>
+    <string name="not_connected">Verbindung getrennt</string>
+    <string name="could_not_connect">Konnte keine Verbindung zum Ger\u00E4t herstellen</string>
 
 </resources>

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -15,7 +16,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hft.stuttgart.strawberry.fragments.DifficultyFragement;
-import de.hft.stuttgart.strawberry.fragments.GPMultiFragment;
 import de.hft.stuttgart.strawberry.snake.R;
 
 /**
@@ -25,6 +25,8 @@ public class MainActivity extends ActionBarActivity {
 
     // TAG für den Logger
     private static final String TAG = MainActivity.class.getSimpleName();
+
+
 
     //Buttons
     private Button singleplayer;
@@ -58,13 +60,19 @@ public class MainActivity extends ActionBarActivity {
         // Initialisiert die Widgets der Activity
         this.initWidgets();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         // Initialisiert die Handler der Widgets
         this.initWidgetHandlers();
     }
 
     /*
-    initialisiert Widgets
-     */
+        initialisiert Widgets
+         */
     private void initWidgets(){
         singleplayer = (Button) findViewById(R.id.singleplayer);
         multiplayer = (Button) findViewById(R.id.multiplayer);
@@ -139,26 +147,8 @@ public class MainActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                // Erzeugen des Fragments
-                                DifficultyFragement difficultyFragement = new DifficultyFragement();
-
-                                // Singleplayer setzen
                                 fromSingleplayer = false;
-
-                                // Bundle zur Übergabe von Parametern
-                                Bundle bundle = new Bundle();
-
-                                // Parameterübergabe in das Fragment
-                                difficultyFragement.setArguments(bundle);
-
-                                // Lädt den Fragmentmanager der Activity
-                                FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
-
-                                // Startet die Transaction des Fragments
-                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-                                // Zeigt das Fragment an
-                                difficultyFragement.show(fragmentTransaction, "test");
+                                onLevelSelected(2);
                             }
                         });
                     }
@@ -200,7 +190,7 @@ public class MainActivity extends ActionBarActivity {
         if (fromSingleplayer) {
             intent = new Intent(this, GPSingleActivity.class);
         } else {
-            intent = new Intent(this, GPMultiActivity.class);
+            intent = new Intent(this, LobbyActivity.class);
         }
         intent.putExtra("difficulty", level);
         startActivity(intent);

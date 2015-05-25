@@ -23,23 +23,27 @@ import java.util.Set;
 import de.hft.stuttgart.strawberry.snake.R;
 
 /**
- * Diese Klasse listet Bluetooth-Geräte auf und verwaltet
- * die Paarung für den Multiplayer.
+ * Diese Klasse listet Bluetooth-Geraete auf und verwaltet
+ * die Paarung fuer den Multiplayer.
  */
 public class BluetoothSearchActivity extends Activity {
 
-    private static final int REQUEST_ENABLE_BT = 2;
-
+    // TAG fuer den Logger
     private static final String TAG = BluetoothSearchActivity.class.getSimpleName();
 
+    // Konstante fuer die MAC Adresse, die mitgegeben wird
     public static final String EXTRA_DEVICE_ADDRESS = "device_address";
 
-    private BluetoothAdapter myBTAdapter;
+    // BT Adapter
+    private BluetoothAdapter mBTAdapter;
 
+    // ArrayAdapter fuer gepaarte Geraete
     private ArrayAdapter<String> pairedDevicesAdapter;
 
+    // ArrayAdapter fuer nicht gepaarte Geraete
     private ArrayAdapter<String> newDevicesAdapter;
 
+    // Button zum Scannen
     private Button btnScan;
 
     /*
@@ -49,64 +53,63 @@ public class BluetoothSearchActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.activity_bluetooth);
+        setContentView(R.layout.activity_bluetooth_search);
 
         setResult(Activity.RESULT_CANCELED);
 
-        // Such-Button initialisieren
-        btnScan = (Button) findViewById(R.id.btn_scan);
+        initWidgets();
 
-        // Button-ClickListener
-        btnScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                findDevices();
-            }
-        });
+        registerReceiviers();
 
-        // Adapter für die ListViews initialisieren
-        pairedDevicesAdapter = new ArrayAdapter<>(this, R.layout.tv_device_name);
-        newDevicesAdapter = new ArrayAdapter<>(this, R.layout.tv_device_name);
+        // Adapter setzen
+        mBTAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // ListView für gepaarte Geräte initialisieren
-        ListView pairedListView = (ListView) findViewById(R.id.lv_paired_devices);
-        pairedListView.setAdapter(pairedDevicesAdapter);
-        pairedListView.setOnItemClickListener(selectDeviceClickListener);
+        getPairedDevices();
+    }
 
-        // ListView für neue Geräte initialisieren
-        ListView newDevicesListView = (ListView) findViewById(R.id.lv_new_devices);
-        newDevicesListView.setAdapter(newDevicesAdapter);
-        newDevicesListView.setOnItemClickListener(selectDeviceClickListener);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        findDevices();
+    }
 
-        // Registriert Empfänger wenn ein Gerät gefunden wurde
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        this.registerReceiver(myReceiver, filter);
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent();
 
-        // Registriert Empfänger wenn Suche beendet wurde
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        this.registerReceiver(myReceiver, filter);
-
-        // Adapter für die App holen
-        myBTAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        // Liste mit bereits gepaarten Geräten sammeln
-        Set<BluetoothDevice> pairedDevices = myBTAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            // Titel einblenden
-            findViewById(R.id.header_paired_devices).setVisibility(View.VISIBLE);
-            for (BluetoothDevice device : pairedDevices) {
-                pairedDevicesAdapter.add(device.getName());
-                Log.d(TAG, "Found Paired Device: " + device.getName());
-            }
-        } else {
-            pairedDevicesAdapter.add(getResources().getText(R.string.no_devices).toString());
-            Log.d(TAG, getResources().getText(R.string.no_devices).toString());
+        // Suche beenden
+        if (mBTAdapter != null) {
+            mBTAdapter.cancelDiscovery();
         }
+
+        // Empfaenger deaktivieren
+        this.unregisterReceiver(myReceiver);
+
+        // Ergebnis setzen und diese Activity beenden
+        setResult(Activity.RESULT_CANCELED, intent);
+        finish();
     }
 
     /*
-    Sucht nach Geräten in Reichweite
+    Bei beenden soll die Suche gestoppt und der Empfï¿½nger deaktiviert werden
      */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Suche beenden
+        if (mBTAdapter != null) {
+            mBTAdapter.cancelDiscovery();
+        }
+
+        // Empfaenger deaktivieren
+        this.unregisterReceiver(myReceiver);
+    }
+
+    /*
+    Sucht nach Geraeten in Reichweite
+    */
     private void findDevices() {
         // TODO die setter hier funktionieren noch nicht, mach ich noch
         setProgressBarIndeterminateVisibility(true);
@@ -121,28 +124,28 @@ public class BluetoothSearchActivity extends Activity {
         // Titel einblenden
         findViewById(R.id.header_new_devices).setVisibility(View.VISIBLE);
 
-        // Falls eine Suche durchgeführt wird, soll diese beendet werden
-        if (myBTAdapter.isDiscovering()) {
-            myBTAdapter.cancelDiscovery();
+        // Falls eine Suche durchgefuehrt wird, soll diese beendet werden
+        if (mBTAdapter.isDiscovering()) {
+            mBTAdapter.cancelDiscovery();
         }
 
         // Suche starten
-        myBTAdapter.startDiscovery();
+        mBTAdapter.startDiscovery();
         Log.d(TAG, "startDiscovery()");
     }
 
     /*
-    ClickListener für alle in der Liste aufgeführten Geräte
+    ClickListener fuer alle in der Liste aufgefuehrten Geraete
      */
     private AdapterView.OnItemClickListener selectDeviceClickListener
             = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
 
-            // Suche abbrechen, da wir uns gerade verbinden möchten
-            myBTAdapter.cancelDiscovery();
+            // Suche abbrechen, da wir uns gerade verbinden mï¿½chten
+            mBTAdapter.cancelDiscovery();
 
             // Die MAC Adresse holen, diese sind die letzten 17 Zeichen der View
-            String info = ((TextView) v).getText().toString();
+            String info = ((TextView) v).getText().toString();//TODO die MAC wird aus dem Text der ListView geholt. Sieht unschÃ¶n aus Sollte eher aus einem Set geholt werden dann muss nur der Name in der Liste angezeigt werden
             String address = info.substring(info.length() - 17);
 
             // Intent erzeugen und MAC Adresse mitgeben
@@ -156,23 +159,7 @@ public class BluetoothSearchActivity extends Activity {
     };
 
     /*
-    Bei beenden soll die Suche gestoppt und der Empfänger deaktiviert werden
-     */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        // Suche beenden
-        if (myBTAdapter != null) {
-            myBTAdapter.cancelDiscovery();
-        }
-
-        // Empfänger deaktivieren
-        this.unregisterReceiver(myReceiver);
-    }
-
-    /*
-    Empfänger für gefundene Geräte
+    Empfaenger fuer gefundene Geraete
      */
     final BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
@@ -181,10 +168,10 @@ public class BluetoothSearchActivity extends Activity {
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 
-                // gefundenes Gerät in Objekt übergeben
+                // gefundenes Gerï¿½t in Objekt ï¿½bergeben
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                // nur in die Liste neuer Geräte setzten, falls die noch nicht gepaart wurden
+                // nur in die Liste neuer Gerï¿½te setzten, falls die noch nicht gepaart wurden
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     newDevicesAdapter.add(device.getName() + "\n" + device.getAddress());
                     Log.d(TAG, "Found new Device: " + device.getName());
@@ -203,5 +190,72 @@ public class BluetoothSearchActivity extends Activity {
             }
         }
     };
+
+    /*
+    initialisiert die Widgets dieser Activity
+     */
+    private void initWidgets() {
+
+        // Such-Button initialisieren
+        btnScan = (Button) findViewById(R.id.btn_scan);
+
+        // Button-ClickListener
+        btnScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mBTAdapter != null && !mBTAdapter.isDiscovering()) {
+                    findDevices();
+                }
+            }
+        });
+
+        // Adapter fuer die ListViews initialisieren
+        pairedDevicesAdapter = new ArrayAdapter<>(this, R.layout.tv_device_name);
+        newDevicesAdapter = new ArrayAdapter<>(this, R.layout.tv_device_name);
+
+        // ListView fuer gepaarte Geraete initialisieren
+        ListView pairedListView = (ListView) findViewById(R.id.lv_paired_devices);
+        pairedListView.setAdapter(pairedDevicesAdapter);
+        pairedListView.setOnItemClickListener(selectDeviceClickListener);
+
+        // ListView fuer neue Geraete initialisieren
+        ListView newDevicesListView = (ListView) findViewById(R.id.lv_new_devices);
+        newDevicesListView.setAdapter(newDevicesAdapter);
+        newDevicesListView.setOnItemClickListener(selectDeviceClickListener);
+    }
+
+    /*
+    Registriert die Empfaenger
+     */
+    private void registerReceiviers() {
+
+        // Registriert Empfaenger wenn ein Geraet gefunden wurde
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        this.registerReceiver(myReceiver, filter);
+
+        // Registriert Empfaenger wenn Suche beendet wurde
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        this.registerReceiver(myReceiver, filter);
+    }
+
+    /*
+    holt alle bereits gepaarten Geraete fuer die ListView
+     */
+    private void getPairedDevices() {
+
+        // Liste mit bereits gepaarten Gerï¿½ten sammeln
+        Set<BluetoothDevice> pairedDevices = mBTAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            // Titel einblenden
+            findViewById(R.id.header_paired_devices).setVisibility(View.VISIBLE);
+            for (BluetoothDevice device : pairedDevices) {
+                pairedDevicesAdapter.add(device.getName() + "\n" + device.getAddress());
+                Log.d(TAG, "Found Paired Device: " + device.getName());
+            }
+        } else {
+            pairedDevicesAdapter.add(getString(R.string.no_devices));
+            Log.d(TAG, getString(R.string.no_devices));
+        }
+    }
 
 }
