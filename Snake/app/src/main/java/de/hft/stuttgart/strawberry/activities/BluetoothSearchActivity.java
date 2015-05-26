@@ -34,6 +34,12 @@ public class BluetoothSearchActivity extends Activity {
     // Konstante fuer die MAC Adresse, die mitgegeben wird
     public static final String EXTRA_DEVICE_ADDRESS = "device_address";
 
+    // Konstante fuer die MAC Adresse, die mitgegeben wird
+    public static final String EXTRA_DEVICE_SELECTED = "device_selected";
+
+    // Konstante fuer die MAC Adresse, die mitgegeben wird
+    public static final String EXTRA_FIRST_PLAYER = "first_player";
+
     // BT Adapter
     private BluetoothAdapter mBTAdapter;
 
@@ -45,6 +51,10 @@ public class BluetoothSearchActivity extends Activity {
 
     // Button zum Scannen
     private Button btnScan;
+
+    private boolean deviceSelected = false;
+
+    private boolean firstPlayer = false;
 
     /*
     Standard onCreate Methode
@@ -76,7 +86,9 @@ public class BluetoothSearchActivity extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+
         Intent intent = new Intent();
+        intent.putExtra(EXTRA_DEVICE_SELECTED, deviceSelected);
 
         // Suche beenden
         if (mBTAdapter != null) {
@@ -92,7 +104,7 @@ public class BluetoothSearchActivity extends Activity {
     }
 
     /*
-    Bei beenden soll die Suche gestoppt und der Empf�nger deaktiviert werden
+    Bei beenden soll die Suche gestoppt und der Empfaenger deaktiviert werden
      */
     @Override
     protected void onDestroy() {
@@ -141,8 +153,10 @@ public class BluetoothSearchActivity extends Activity {
             = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
 
-            // Suche abbrechen, da wir uns gerade verbinden m�chten
+            // Suche abbrechen, da wir uns gerade verbinden moechten
             mBTAdapter.cancelDiscovery();
+            deviceSelected = true;
+            firstPlayer = true;
 
             // Die MAC Adresse holen, diese sind die letzten 17 Zeichen der View
             String info = ((TextView) v).getText().toString();//TODO die MAC wird aus dem Text der ListView geholt. Sieht unschön aus Sollte eher aus einem Set geholt werden dann muss nur der Name in der Liste angezeigt werden
@@ -151,6 +165,8 @@ public class BluetoothSearchActivity extends Activity {
             // Intent erzeugen und MAC Adresse mitgeben
             Intent intent = new Intent();
             intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
+            intent.putExtra(EXTRA_DEVICE_SELECTED, deviceSelected);
+            intent.putExtra(EXTRA_FIRST_PLAYER, firstPlayer);
 
             // Ergebnis setzen und diese Activity beenden
             setResult(Activity.RESULT_OK, intent);

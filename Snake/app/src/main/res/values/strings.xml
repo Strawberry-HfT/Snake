@@ -17,13 +17,14 @@
     <string name="bt_not_available">"Bluetooth ist nicht verf\u00FCgbar"</string>
     <string name="start_search">Suche starten</string>
 
-    <!-- Activity Lobby -->
+    <!-- Activity Multiplayer -->
     <string name="lets_go">Los Gehts\u0021</string>
+    <string name="select_level">Level</string>
     <string name="wait_for_dude">Warten auf Mitspieler\u002E\u002E\u002E</string>
     <string name="no_dude_selected">Mit keinem Spieler Verbunden</string>
     <string name="title_connected_to">verbunden mit <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="not_discoverable">Du bist f\u00FCr andere nicht sichtbar</string>
-    <string name="error_leave_app">Fehler bei der Verbindung\u002C verlasse App</string>
+    <string name="error_leave_app">Fehler bei der Verbindung\u002C verlasse Multiplayer</string>
     <string name="no_device_selected">Kein Ger\u00E4t ausgew\u00E4hlt</string>
     <string name="not_connected">Verbindung getrennt</string>
     <string name="could_not_connect">Konnte keine Verbindung zum Ger\u00E4t herstellen</string>

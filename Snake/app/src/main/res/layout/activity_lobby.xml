@@ -41,10 +41,10 @@
         android:layout_alignParentBottom="true" />
 
     <Button
-        android:id="@+id/test_button"
+        android:id="@+id/level_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send Test"
+        android:text="@string/select_level"
         android:layout_above="@+id/btn_lobby"
         android:layout_alignParentStart="true" />
 

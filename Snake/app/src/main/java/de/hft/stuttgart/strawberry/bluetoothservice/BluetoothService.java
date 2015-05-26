@@ -298,7 +298,7 @@ public class BluetoothService {
      */
     public class AcceptConnectionThread implements Runnable {
 
-        // Server-Socket für eingehende Verbindungsanfragen
+        // Server-Socket fuer eingehende Verbindungsanfragen
         private final BluetoothServerSocket mServerSocket;
 
         // beschreibt den Verbindungstyp "sicher" | "unsicher"

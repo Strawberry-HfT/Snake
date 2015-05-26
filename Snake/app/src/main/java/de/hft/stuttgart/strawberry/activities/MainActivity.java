@@ -2,6 +2,7 @@ package de.hft.stuttgart.strawberry.activities;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -11,22 +12,27 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.hft.stuttgart.strawberry.fragments.DifficultyFragement;
+import de.hft.stuttgart.strawberry.fragments.DifficultyFragment;
 import de.hft.stuttgart.strawberry.snake.R;
 
 /**
  * Main activity der Snake-Applikation
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements DialogInterface.OnDismissListener {
 
     // TAG für den Logger
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    // Tag fuer Fragment
+    private static final String FRAGMENT_TAG = "difficulty_fragment";
 
+    // Konstante zur Schwierigkeitsübergabe an das Spiel
+    public static final String BUNDLE_DIFFICULTY = "difficulty";
 
     //Buttons
     private Button singleplayer;
@@ -39,8 +45,11 @@ public class MainActivity extends ActionBarActivity {
     // Schwierigkeitsgrad
     private int selectedDifficulty;
 
-    // Wert für Singleplayermodus
+    // Wert fuer Singleplayermodus
     private boolean fromSingleplayer;
+
+    // Wert fuer gewaehlen Schwierigkeitsgrad
+    private boolean levelSelected = false;
 
     /*
     Methode wird beim Start der Applikation aufgerufen
@@ -70,9 +79,23 @@ public class MainActivity extends ActionBarActivity {
         this.initWidgetHandlers();
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+
+        // Wenn der Schwierigkeitsgrad gewaehlt wurde, startet der Singleplayer
+        if (isFromSingleplayer() && isLevelSelected()) {
+            Intent intentSingle = null;
+            intentSingle = new Intent(MainActivity.this, GPSingleActivity.class);
+            intentSingle.putExtra(BUNDLE_DIFFICULTY, getSelectedDifficulty());
+            startActivity(intentSingle);
+        } else {
+            Toast.makeText(this, "Kein Schwierigkeitsgrad gewählt", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /*
-        initialisiert Widgets
-         */
+    initialisiert Widgets
+     */
     private void initWidgets(){
         singleplayer = (Button) findViewById(R.id.singleplayer);
         multiplayer = (Button) findViewById(R.id.multiplayer);
@@ -104,26 +127,9 @@ public class MainActivity extends ActionBarActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                // Erzeugen des Fragments
-                                DifficultyFragement difficultyFragement = new DifficultyFragement();
-
                                 // Singleplayer setzen
                                 fromSingleplayer = true;
-
-                                // Bundle zur Übergabe von Parametern
-                                Bundle bundle = new Bundle();
-
-                                // Parameterübergabe in das Fragment
-                                difficultyFragement.setArguments(bundle);
-
-                                // Lädt den Fragmentmanager der Activity
-                                FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
-
-                                // Startet die Transaction des Fragments
-                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-                                // Zeigt das Fragment an
-                                difficultyFragement.show(fragmentTransaction, "test");
+                                showDifficultyFragment();
                             }
                         });
                     }
@@ -148,7 +154,10 @@ public class MainActivity extends ActionBarActivity {
                             @Override
                             public void run() {
                                 fromSingleplayer = false;
-                                onLevelSelected(2);
+                                Intent intentMulti = null;
+                                intentMulti = new Intent(MainActivity.this, GPMultiActivity.class);
+                                startActivity(intentMulti);
+//
                             }
                         });
                     }
@@ -180,20 +189,43 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    /*
-    Gewählte Geschwindigkeit setzen und Spiel-Activity starten
-     */
-    public void onLevelSelected(int level) {
-        selectedDifficulty = level;
-        Intent intent = null;
+//    /*
+//    Gewählte Geschwindigkeit setzen und Spiel-Activity starten
+//     */
+//    public void onLevelSelected(int level) {
+//        selectedDifficulty = level;
+//        Intent intent = null;
+//
+//        if (fromSingleplayer) {
+//            intent = new Intent(this, GPSingleActivity.class);
+//        } else {
+//            intent = new Intent(this, GPMultiActivity.class);
+//        }
+//        intent.putExtra("selectedDifficulty", level);
+//        startActivity(intent);
+//    }
 
-        if (fromSingleplayer) {
-            intent = new Intent(this, GPSingleActivity.class);
-        } else {
-            intent = new Intent(this, LobbyActivity.class);
-        }
-        intent.putExtra("difficulty", level);
-        startActivity(intent);
+    /*
+    Zeigt das Fragment zum auswaehlen des Schwierigkeitsgrades
+     */
+    private void showDifficultyFragment() {
+        // Erzeugen des Fragments
+        DifficultyFragment difficultyFragment = new DifficultyFragment();
+
+        // Bundle zur Übergabe von Parametern
+        Bundle bundle = new Bundle();
+
+        // Parameterübergabe in das Fragment
+        difficultyFragment.setArguments(bundle);
+
+        // Lädt den Fragmentmanager der Activity
+        FragmentManager fragmentManager = MainActivity.this.getFragmentManager();
+
+        // Startet die Transaction des Fragments
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        // Zeigt das Fragment an
+        difficultyFragment.show(fragmentTransaction, FRAGMENT_TAG);
     }
 
     /*
@@ -230,4 +262,22 @@ public class MainActivity extends ActionBarActivity {
     public void setSelectedDifficulty(int selectedDifficulty) {
         this.selectedDifficulty = selectedDifficulty;
     }
+
+    public boolean isFromSingleplayer() {
+        return fromSingleplayer;
+    }
+
+    public void setFromSingleplayer(boolean fromSingleplayer) {
+        this.fromSingleplayer = fromSingleplayer;
+    }
+
+    public boolean isLevelSelected() {
+        return levelSelected;
+    }
+
+    public void setLevelSelected(boolean levelSelected) {
+        this.levelSelected = levelSelected;
+    }
+
+
 }
