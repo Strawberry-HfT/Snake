@@ -24,9 +24,15 @@
     <string name="no_dude_selected">Mit keinem Spieler Verbunden</string>
     <string name="title_connected_to">verbunden mit <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="not_discoverable">Du bist f\u00FCr andere nicht sichtbar</string>
-    <string name="error_leave_app">Fehler bei der Verbindung\u002C verlasse Multiplayer</string>
+    <string name="error_leave_app">Fehler bei der Verbindung\u002C Verlasse Multiplayer</string>
     <string name="no_device_selected">Kein Ger\u00E4t ausgew\u00E4hlt</string>
     <string name="not_connected">Verbindung getrennt</string>
     <string name="could_not_connect">Konnte keine Verbindung zum Ger\u00E4t herstellen</string>
+    <string name="bt_turned_on">Bluetooth wurde aktiviert</string>
+
+    <string name="difficulty">Schwierigkeitsgrad:\u0020</string>
+    <string name="easy">Leicht</string>
+    <string name="medium">Mittel</string>
+    <string name="hard">Schwer</string>
 
 </resources>

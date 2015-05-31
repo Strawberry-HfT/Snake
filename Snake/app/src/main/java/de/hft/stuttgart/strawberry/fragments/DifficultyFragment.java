@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,13 +35,15 @@ public class DifficultyFragment extends DialogFragment {
     private View myInflatedView;
 
     // Ausgewählte Schwierigkeit als int
-    private int selectedLevel;
+    private int selectedDifficulty;
 
     // Spielen Button zum Starten des Spiels
     private Button btnAccept;
 
     // RadioButton Group zur Schwierigkeitsauswahl
     private RadioGroup schwierigkeit;
+
+    private Handler mHandler;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,13 +75,17 @@ public class DifficultyFragment extends DialogFragment {
         Activity activity = getActivity();
         // hier wird die gewaehlte Geschiwndigkeit uebergeben
         if (activity instanceof MainActivity) {
+
             MainActivity mainActivity = (MainActivity) activity;
-            mainActivity.setSelectedDifficulty(selectedLevel);
+
+            mainActivity.setSelectedDifficulty(selectedDifficulty);
             mainActivity.setLevelSelected(true);
             mainActivity.onDismiss(dialog);
         } else if (activity instanceof GPMultiActivity) {
+
             GPMultiActivity multiActivity = (GPMultiActivity) activity;
-            multiActivity.setLevelSpeed(selectedLevel);
+
+            multiActivity.setSelectedDifficulty(selectedDifficulty);
             multiActivity.setLevelSelected(true);
             multiActivity.onDismiss(dialog);
         }
@@ -103,19 +110,19 @@ public class DifficultyFragment extends DialogFragment {
 
                 //TODO besser als Switch-Case schreiben
                 if (checkedId == R.id.einfach) {
-                    selectedLevel = EASY;
+                    selectedDifficulty = EASY;
 //                    Toast.makeText(getActivity(), "Leicht", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
                 } else if (checkedId == R.id.mittel) {
-                    selectedLevel = MEDIUM;
+                    selectedDifficulty = MEDIUM;
 //                    Toast.makeText(getActivity(), "Mittel", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
 
                 } else if (checkedId == R.id.schwer) {
-                    selectedLevel = HARD;
+                    selectedDifficulty = HARD;
 //                    Toast.makeText(getActivity(), "Schwer", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
                 }
 
                 // Wenn keine Schwierigkeit gewählt wurde
-                if (selectedLevel == NONE) {
+                if (selectedDifficulty == NONE) {
                     Toast.makeText(getActivity(), "Schwierigkeitsgrad auswählen", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
                 } else {
                     dismiss();

@@ -28,7 +28,7 @@ public class GPSingleView extends TileView {
     public GPSingleView(Context context) {
         super(context);
 
-        this.berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
+//        this.berryBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.strawberry_icon);
 
         // TODO Wieder einkommentierten, zu Testzwecken auskommentiert
 //        this.setBackgroundResource(R.drawable.gameplay_background);

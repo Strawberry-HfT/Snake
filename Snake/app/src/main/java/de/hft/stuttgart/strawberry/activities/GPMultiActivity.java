@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
@@ -23,6 +24,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -48,9 +55,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     // TAG fuer den Logger
     private static final String TAG = GPMultiActivity.class.getSimpleName();
 
-    // Tag fuer Fragment
-    private static final String FRAGMENT_TAG = "difficulty_fragment";
-
     // Konstanten, für verschiedene Status
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
@@ -62,10 +66,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private static final int MEDIUM = 2;
     private static final int HARD = 3;
 
-    private static final String NOTIFIER_MESSAGE = "level_selected";
-
-    int selectedDifficulty;
-
     // Name des verbundenen Geraetes
     private String mConnectedDeviceName = null;
 
@@ -74,6 +74,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private TextView textView;
     private ProgressBar spinner;
 
+    // TODO ist voruebergehend noch drin, Levelauswahl kann aber auch in den obigen Button vershoben werden
     private Button btnLevel;
 
     // Der Bluetooth Service
@@ -86,14 +87,16 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private StringBuffer mOutStringBuffer;
 
     // gibt aktive Verbindung an
-    private boolean activeConnection = false;//TODO wird noch nicht gesetzt, also immer false bis jetzt
-
+    private boolean activeConnection = false;
 
     // Anfangslänge der Schlange
     private static final int INIT_SNAKE_LENGTH = 3;
 
     // View in Activity
     private GPSingleView singleView;
+
+    // Timer zum neuzeichnen der GP View
+    Timer myTimer;
 
     // Schlange
     private Snake snake;
@@ -119,6 +122,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private boolean music = false;
     private MediaPlayer mediaPlayer;
 
+    // gesetzte Schwierigkeit
+    private int selectedDifficulty;
+
     // gesetze Spielgeschwindigkeit
     private int levelSpeed;
 
@@ -128,22 +134,28 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     // gibt an, ob ein Spieler geaehlt wurde
     private boolean deviceSelected = false;
 
-    // Wert fuer Singleplayermodus
-    private boolean fromSingleplayer = false;
-
     // Wert fuer gewaehlen Schwierigkeitsgrad
     private boolean levelSelected = false;
+
+    // Wert fuer laufendes Spiel
+    private boolean runningGame = false;
+
+    // empfangene Position als byte[]
+    private byte[] recievedPosByteArray = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // falls noch nicht verbunden wurde, die Lobby-Sicht anzeigen
-        if (!activeConnection) {
-            setContentView(R.layout.activity_lobby);
+        if (!isActiveConnection()) {
+//            LayoutInflater inflFactory = LayoutInflater.from(this);
+//            lobbyView = inflFactory.inflate(R.layout.view_lobby, null);
+//            lobbyView.setVisibility(View.VISIBLE);
+            setContentView(R.layout.view_lobby);
 
             // Initialisiere Widgets
-            initWidgets();
+            initLobbyWidgets();
 
             // Adapter fuer die App holen
             mBTAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -153,19 +165,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 Toast.makeText(this, getResources().getText(R.string.bt_not_available), Toast.LENGTH_LONG).show();
                 this.finish();
             }
-        } else {
-            this.singleView = new GPSingleView(this);
-
-            // Vollbildmodus der View, ab Android 4.4
-            singleView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-
-            // Verknüpft die Activity mit der View
-            this.setContentView(singleView);
         }
     }
 
@@ -173,7 +172,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     public void onStart() {
         super.onStart();
         // Ablauf wenn die Lobby aktiv ist
-        if (!activeConnection) {
+        if (!isActiveConnection()) {
 
             // Bluetooth aktivieren lassen, falls nicht aktiviert
             if (!mBTAdapter.isEnabled()) {
@@ -188,92 +187,16 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
             // Sichtbarkeit ueberpruefen
             if (!deviceSelected) {
-                ensureDiscoverable();
-            }
-        } else {
-            // Ablauf wenn das das Spiel gestartet wird
-            // beim ersten Spieler wird auch die Erdbeere verwaltet
-            if (firstPlayer) {
-                // Initialisierung Variablen (Schlange, Beere)
-                this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
-                this.strawberry = new Strawberry(this.singleView.getmTileGrid());
-                this.direction = new Movement();
-
-                // startet Timer
-                startTimer();
-
-                if(lenkungSensor) {
-                    // Sensor starten
-                    this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-                    this.sensorAccelorometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                    this.sensorManager.registerListener(new SnakeSensorEventListener(this.direction), sensorAccelorometer, SensorManager.SENSOR_DELAY_NORMAL);
-                }
-                if(!lenkungSensor) {
-                    // Gestensensor, registiert die Klasse als Context und den ausgelagerten Listener
-                    this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
-                }
-
-                if (music){
-                    // Musik
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mediaPlayer.setLooping(true);
-                    mediaPlayer.start();
-                }
-            } else { // TODO hier muss für den zweiten Player noch die view erstellt werden (glaub) und die schlange vom ersten player geholt werden
-                // beim zweiten Spieler wird nur die eigene Schlange initialisiert
-//                this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
-//                this.direction = new Movement();
+//                ensureDiscoverable();//TODO zu testzwecken auskommentiert
             }
         }
-    }
-
-    /*
-    Initialisiert die Werte, die von der Schwierigkeitsauswahl abhängen
-     */
-    private void initSnakeSpeed() {
-        if (music) {
-            mediaPlayer = new MediaPlayer();
-        }
-
-        switch (selectedDifficulty) {
-            case EASY:
-                levelSpeed = 300;
-                if (music) {
-                    mediaPlayer = MediaPlayer.create(this, R.raw.audioeasy);
-                }
-                break;
-            case MEDIUM:
-                levelSpeed = 180;
-                if (music) {
-                    mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
-                }
-                break;
-            case HARD:
-                levelSpeed = 80;
-                if (music) {
-                    mediaPlayer = MediaPlayer.create(this, R.raw.audiohard);
-                }
-                break;
-            default:
-                levelSpeed = 300;
-                if (music) {
-                    mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
-                }
-                break;
-        }
-    }
-
-    // Überschreiben aus Superklasse, zum Registrieren der Gesten
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (mBtService != null) {
+            Log.d(TAG, "stopping Threads from onDestroy()");
             mBtService.stop();
             mBtService = null;
         }
@@ -289,6 +212,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     public void onBackPressed() {
         super.onBackPressed();
         if (mBtService != null) {
+            Log.d(TAG, "stopping Threads from onBackPressed()");
             mBtService.stop();
             mBtService = null;
         }
@@ -298,6 +222,10 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         if (mOutStringBuffer != null) {
             mOutStringBuffer = null;
         }
+
+        if(isRunningGame()) {
+            // TODO PauseFragment
+        }
     }
 
     @Override
@@ -305,6 +233,10 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         super.onPause();
 //        if (mBtService != null) {
 //            mBtService.stop();
+//        }
+//        if (isRunningGame()) {
+//            myTimer.cancel();
+//            singleView.setVisibility(View.INVISIBLE);
 //        }
     }
 
@@ -322,20 +254,155 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         }
     }
 
+    /*
+    Wird aufgerufen, wenn das DifficultyFragment wieder geschlossen wird
+     */
     @Override
     public void onDismiss(DialogInterface dialog) {
 
-        String msg = "Level: " + levelSpeed;
+        // Wenn der Schwierigkeitsgrad gewaehlt wurde, wird eine Meldung an den 2. Spieler versendet
+        if (isLevelSelected() && isFirstPlayer()) {
+            notifyDudeLevelSelected();
+        }
 
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-        sendMessage(msg);
+        // Der Schwierigkeitsgrad wird für beide Spieler angezeigt
+        StringBuffer lvlMsg = new StringBuffer();
+        lvlMsg.append(getString(R.string.difficulty));
+        switch (selectedDifficulty) {
+            case EASY:
+                lvlMsg.append(getString(R.string.easy));
+                break;
+            case MEDIUM:
+                lvlMsg.append(getString(R.string.medium));
+                break;
+            case HARD:
+                lvlMsg.append(getString(R.string.hard));
+                break;
+        }
 
+        // fuer Spieler 1
+        Toast.makeText(this, lvlMsg, Toast.LENGTH_SHORT).show();
+
+        // fuer Spieler 2
+        Log.d(TAG, "notifyDudeAboutLevel..");
+        sendNotification(lvlMsg.toString());
+
+        Log.d(TAG, "selected: " + lvlMsg);
+
+        // Buffer zuruecksetzen
+        lvlMsg = null;
+    }
+
+    // Überschreiben aus Superklasse, zum Registrieren der Gesten
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    /*
+    Multiplayer starten
+     */
+    private void startGame() {
+
+        this.singleView = new GPSingleView(this);
+
+        this.initSnakeSpeed();
+
+        // Vollbildmodus der View, ab Android 4.4
+        singleView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+        // Verknüpft die Activity mit der View
+        this.setContentView(singleView);
+
+        // Ausrichtung Bildschirm (wird festgehalten)
+//        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // TODO auskommentiert, da es einen noch unbekannten Fehler verursacht
+
+        // Ablauf wenn das das Spiel gestartet wird
+        // beim ersten Spieler wird auch die Erdbeere verwaltet
+        if (isFirstPlayer()) {
+            // Initialisierung Variablen (Schlange, Beere)
+            this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
+            this.strawberry = new Strawberry(this.singleView.getmTileGrid());
+            this.direction = new Movement();
+
+            // startet Timer
+            startTimer();
+
+            if(lenkungSensor) {
+                // Sensor starten
+                this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+                this.sensorAccelorometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                this.sensorManager.registerListener(new SnakeSensorEventListener(this.direction), sensorAccelorometer, SensorManager.SENSOR_DELAY_NORMAL);
+            }
+            if(!lenkungSensor) {
+                // Gestensensor, registiert die Klasse als Context und den ausgelagerten Listener
+                this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
+            }
+
+            if (music){
+                // Musik
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mediaPlayer.setLooping(true);
+                mediaPlayer.start();
+            }
+
+            setRunningGame(true);
+            notifyDudeGameStarted();
+            sendPosition(); // TODO hier versende ich einmalig die startpostition zum dude als test obs ankommt (muss wieder raus)
+        } else { // TODO hier muss für den zweiten Player noch die view erstellt werden (glaub) und die schlange vom ersten player geholt werden
+            // beim zweiten Spieler wird nur die eigene Schlange initialisiert
+//                this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
+//                this.direction = new Movement();
+        }
+    }
+
+    /*
+    Initialisiert die Werte, die von der Schwierigkeitsauswahl abhängen
+     */
+    private void initSnakeSpeed() {
+        if (music) {
+            mediaPlayer = new MediaPlayer();
+        }
+
+        switch (selectedDifficulty) {
+            case EASY:
+                levelSpeed = 300;
+                if (mediaPlayer != null) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audioeasy);
+                }
+                break;
+            case MEDIUM:
+                levelSpeed = 180;
+                if (mediaPlayer != null) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
+                }
+                break;
+            case HARD:
+                levelSpeed = 80;
+                if (mediaPlayer != null) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audiohard);
+                }
+                break;
+            default:
+                levelSpeed = 300;
+                if (mediaPlayer != null) {
+                    mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
+                }
+                break;
+        }
     }
 
     // Startet Timer
     private void startTimer() {
+        Log.d(TAG, "BEGIN startTimer()");
         // (Thread)Zeichnet die View immer wieder neu
-        Timer myTimer = new Timer();
+        myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -357,6 +424,66 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     }
 
     /*
+    Versendet die aktuelle Position der Schlange
+    TODO Beere fehlt noch
+     */
+    private synchronized void sendPosition() {
+        Log.d(TAG, "prepare sendPosition()");
+
+        // Pruefung, ob eine aktive Verbindung besteht
+        if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
+            Toast.makeText(this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
+        } else if (isRunningGame()) {
+
+            // aktuelle Position der Schlange
+            ArrayList<Point> positions = snake.getPosition();
+
+//            StringBuffer buffer = new StringBuffer();
+
+            // Positionen als bytes initialisieren
+            byte[] bytePositions = null;
+
+            // index der bytelaenge, wird dem dude mitgeschickt
+            int byteLength = positions.size() * 2;
+
+            // Streams zum konvertieren
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dOut = new DataOutputStream(baos);
+
+            // Positionen als bytes schreiben
+            try {
+                // zuerst den index damit man weiss wie viel bytes relevant sind
+                dOut.writeByte(byteLength);
+                // dann Positionen umschreiben
+                for (Point point : positions) {
+                    dOut.writeByte(point.x);
+                    dOut.writeByte(point.y);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "could not convert positions to bytes", e);
+            }
+
+            // aus dem Stream in das byte[] uebergeben
+            bytePositions = baos.toByteArray();
+
+            // TODO string variante die Position zu verschicken..
+//            for (Point point : position) {
+//                buffer.append(String.valueOf(point.x));
+//                buffer.append(",");
+//                buffer.append(String.valueOf(point.y));
+//                buffer.append(";");
+//            }
+//            String tmp = buffer.toString();
+//            bytePosition = tmp.getBytes();
+
+            // an den dude senden
+            Log.d(TAG, "sending positions");
+            mBtService.write(bytePositions);
+//            buffer.setLength(0);
+        }
+    }
+
+    /*
     Stellt die Verbindung zum ausgewaehlten Geraet her
      */
     private void connectDevice(Intent data, boolean secure) {
@@ -370,30 +497,31 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     }
 
     /*
-    TODO bei uns wird das hier die Uebermittlung der Position an den anderen und die Beere vom ersten player
+    Versendet Schluesselwoerter zur Benachrichtigung an den dude
      */
-    private void sendMessage(String message) {
-        // Check that we're actually manageConnection before trying anything
+    private void sendNotification(String message) {
+
+        // Pruefung, ob eine aktive Verbindung besteht
         if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
             Toast.makeText(this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Check that there's actually something to send
+        // Benachrichtigung senden
         if (message.length() > 0) {
 
-            // Get the message bytes and tell the BluetoothChatService to write
+            // Benachrichtigung konvertieren und versenden
             byte[] send = message.getBytes();
             mBtService.write(send);
 
-            // Reset out string buffer to zero and clear the edit text field
+            // string buffer zuruecksetzen
             mOutStringBuffer.setLength(0);
         }
     }
 
-    /*
+   /*
    Wird immer aufgerufen, wenn aus anderen Activities ein Ergebnis zurueck kommt
-    */
+   */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CONNECT_DEVICE_SECURE:
@@ -433,9 +561,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             case REQUEST_ENABLE_BT:
                 // Antwort aus BT aktivieren
                 if (resultCode == Activity.RESULT_OK) {
-                    // Bluetooth-Suche beginnen
-                    Intent serverIntent = new Intent(this, BluetoothSearchActivity.class);
-                    startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
+                    String msg = getString(R.string.bt_turned_on);
+                   Toast.makeText(GPMultiActivity.this, msg, Toast.LENGTH_SHORT).show();
                 } else {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled");
@@ -447,7 +574,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     }
 
     /*
-    Handler zum Nachrichtenversand an das UI
+    Handler der Benachrichtigungen an das UI sendet und die Positionen empfaengt
      */
     private final Handler mHandler = new Handler() {
         @Override
@@ -456,25 +583,23 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 // Wenn sich der BT Verbindungsstatus aendert
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
+
                         case BluetoothService.STATE_CONNECTED:
                             setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             spinner.setVisibility(View.GONE);
                             if (isFirstPlayer()) {
                                 btnLevel.setEnabled(true);
                             }
-                            if (isLevelSelected()) {
-                                btnAction.setText(R.string.lets_go);
-                                if (isFirstPlayer()) {
-                                    // Wenn der Schwierigkeitsgrad gewaehlt wurde, wird eine Meldung an den 2. Spieler versendet
-                                    notifyLevelSelected();
-                                }
-                            }
+                            setActiveConnection(true);
                             break;
+
                         case BluetoothService.STATE_CONNECTING:
                             setStatus("");
                             spinner.setVisibility(View.VISIBLE);
                             break;
+
                         case BluetoothService.STATE_LISTEN:
+
                         case BluetoothService.STATE_NONE:
                             setStatus("nicht verbunden");
                             break;
@@ -486,33 +611,114 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 //                    String writeMessage = new String(writeBuf);
 //
 //                    break;
+                // wenn eine Benachrichtigung kommt
                 case Constants.MESSAGE_READ:
+
+                    // byte[] to string
                     byte[] readBuf = (byte[]) msg.obj;
-                    // hier testweise erst mal nur eine Toast Nachricht
                     String readMessage = new String(readBuf, 0, msg.arg1);
 
-                    // Wenn der Schwierigkeitsgrad gewaehlt wurde, bekommt der 2. Spieler hier die Nachricht
+                    // hier verarbeitet der dude die Benachrichtigungen
                     if(!isFirstPlayer()) {
-                        if(readMessage.equals(NOTIFIER_MESSAGE)) {
+                        if(readMessage.equals(Constants.NOTIFIER_SELECTED)) {
                             setLevelSelected(true);
-                            btnAction.setText(R.string.lets_go);
+                        } else if (readMessage.contains(Constants.NOTIFIER_STARTED)) {
+                            setRunningGame(true);
+                        } else {
+                            Toast.makeText(GPMultiActivity.this, readMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
-
-
-                    Toast.makeText(GPMultiActivity.this, readMessage, Toast.LENGTH_LONG).show();
                     break;
+                // Wenn der Name des anderen Geraetes kommt
                 case Constants.MESSAGE_DEVICE_NAME:
-                    // Wenn der Name des anderen Geraetes kommt
                     mConnectedDeviceName = msg.getData().getString(Constants.DEVICE_NAME);
                     Toast.makeText(GPMultiActivity.this, getString(
                             R.string.title_connected_to, mConnectedDeviceName),
                             Toast.LENGTH_SHORT).show();
                     break;
+                // Wenn eine Toast Nachricht kommt
                 case Constants.MESSAGE_TOAST:
-                    // Wenn eine Toast Nachricht kommt
                     Toast.makeText(GPMultiActivity.this, msg.getData().getString(Constants.TOAST),
                             Toast.LENGTH_SHORT).show();
+                    break;
+
+                // TODO Ich teste hier, ob die Postion der anderen Schlange ankommt
+                case Constants.POSITION_READ:
+
+                    // Streams
+                    ByteArrayInputStream bais = new ByteArrayInputStream(recievedPosByteArray);
+                    DataInputStream dIn = new DataInputStream(bais);
+
+                    // empfangene Position des dudes
+                    ArrayList<Point> dudesPositions = new ArrayList<>();
+                    Point position = null;
+                    int x = 0;
+                    int y = 0;
+
+                    // laenge der Bytes die nicht genutzt werden
+                    int unusedBytes;
+
+                    boolean isX = true;
+                    boolean gotBoth = false;
+
+                    try {
+                        // Indexgroesse die beim senden vom anderen gesetzt wird, damit wir wissen
+                        // wie viele bytes vom Array fuer diesen Durchgang relevant sind.
+                        int byteIndex = dIn.readByte();
+
+                        if (byteIndex > 0) {
+                            unusedBytes = Constants.STREAM_BUFFER_SIZE - byteIndex - 1;
+                        } else {
+                            unusedBytes = Constants.STREAM_BUFFER_SIZE;
+                        }
+
+                        // den Stream solange lesen, bis die schlange ausgelesen ist
+                        // (der buffer ist zur Zeit immer 1024, wird aber nicht voll ausgenutzt)
+                        while (dIn.available() > unusedBytes) {
+                            // aktueller Wert
+                            int currentByte = dIn.readByte();
+
+                            // damit werden die leeren nullen nicht mit aufgelistet
+//                            if (currentByte == 0) {
+//                                continue;
+//                            }
+
+                            // X, Y Positionen setzten
+                            if (isX) {
+                                x = currentByte;
+                                isX = false;
+                            } else {
+                                y = currentByte;
+                                isX = true;
+                                gotBoth = true;
+                            }
+
+                            // Point aus X, Y erstellen
+                            if (gotBoth) {
+                                position = new Point(x, y);
+                                dudesPositions.add(position);
+                                gotBoth = false;
+                            }
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "could not read sent position");
+                    }
+
+                    // TODO testweise gebe ich die Position als Toast aus
+                    if (dudesPositions.size() > 0) {
+                        StringBuilder positionListString = new StringBuilder();
+                        int i = 0;
+
+                        for (Point p : dudesPositions) {
+                            i++;
+                            if (i == dudesPositions.size()) {
+                                positionListString.append("Position " + i + "->  x:" + p.x + " y: " +p.y);
+                            } else {
+                                positionListString.append("Position " + i + "->  x:" + p.x + " y: " +p.y + "\n");
+                            }
+                        }
+                        Toast.makeText(GPMultiActivity.this, positionListString, Toast.LENGTH_LONG).show();
+                    }
                     break;
             }
         }
@@ -521,7 +727,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     /*
     initialisiert die Widgets dieser Activity
      */
-    private void initWidgets() {
+    private void initLobbyWidgets() {
 
         // Button
         btnAction = (Button) findViewById(R.id.btn_lobby);
@@ -554,7 +760,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 if (!activeConnection) {
                     startFindDevices();
                 } else {
-                    startGame();
+                    if(isFirstPlayer()) { // TODO vorerst startet nur beim ersten Player die GameView
+                        startGame();
+                    }
                 }
             }
         });
@@ -570,13 +778,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     }
 
     /*
-    Multiplayer starten
-     */
-    private void startGame() {
-       //TODO!!!!!!!!!!!!!
-    }
-
-    /*
    Gibt eine Meldung, falls das eigene Geraet nicht sichtbar ist
     */
     private void ensureDiscoverable() {
@@ -588,9 +789,20 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         }
     }
 
-    private void notifyLevelSelected () {
+    /*
+    Schluesselnachricht, dass Spieler 1 eine Schwierigkeit gewaehlt hat
+     */
+    private void notifyDudeLevelSelected() {
+        Log.d(TAG, "notifyDudeLevelSelected()");
         if (isFirstPlayer()) {
-            sendMessage(NOTIFIER_MESSAGE);
+            sendNotification(Constants.NOTIFIER_SELECTED);
+        }
+    }
+
+    private void notifyDudeGameStarted() {
+        Log.d(TAG, "notifyDudeGameStarted()");
+        if (isFirstPlayer()) {
+            sendNotification(Constants.NOTIFIER_STARTED);
         }
     }
 
@@ -614,7 +826,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         // Zeigt das Fragment an
-        difficultyFragment.show(fragmentTransaction, FRAGMENT_TAG);
+        difficultyFragment.show(fragmentTransaction, Constants.FRAGMENT_TAG);
     }
 
     /*
@@ -632,12 +844,15 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         textView.setText(resId);
     }
 
-    public int getLevelSpeed() {
-        return levelSpeed;
+    /*
+    Getter und Setter fuer globale Variablen der Activity
+     */
+    public Handler getmHandler() {
+        return mHandler;
     }
 
-    public void setLevelSpeed(int levelSpeed) {
-        this.levelSpeed = levelSpeed;
+    public void setSelectedDifficulty(int selectedDifficulty) {
+        this.selectedDifficulty = selectedDifficulty;
     }
 
     public boolean isLevelSelected() {
@@ -646,6 +861,12 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
     public void setLevelSelected(boolean levelSelected) {
         this.levelSelected = levelSelected;
+
+        if (levelSelected) {
+            btnAction.setText(R.string.lets_go);
+        } else {
+            btnAction.setText(R.string.start_search);
+        }
     }
 
     public boolean isFirstPlayer() {
@@ -656,7 +877,31 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         this.firstPlayer = firstPlayer;
     }
 
-    public boolean isFromSingleplayer() {
-        return fromSingleplayer;
+    public boolean isActiveConnection() {
+        return activeConnection;
+    }
+
+    public void setActiveConnection(boolean activeConnection) {
+        this.activeConnection = activeConnection;
+    }
+
+    public boolean isRunningGame() {
+        return runningGame;
+    }
+
+    public void setRunningGame(boolean runningGame) {
+        this.runningGame = runningGame;
+    }
+
+    public synchronized byte[] getRecievedPosByteArray() {
+        return recievedPosByteArray;
+    }
+
+    public synchronized void setRecievedPosByteArray(byte[] recievedPosByteArray) {
+        this.recievedPosByteArray = recievedPosByteArray;
+    }
+
+    public Button getBtnAction() {
+        return btnAction;
     }
 }

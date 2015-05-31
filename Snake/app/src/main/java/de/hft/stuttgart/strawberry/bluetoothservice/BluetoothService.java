@@ -17,7 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import de.hft.stuttgart.strawberry.activities.GPMultiActivity;
 import de.hft.stuttgart.strawberry.common.Constants;
+import de.hft.stuttgart.strawberry.snake.R;
 
 /**
  * Dieser Service stellt die Verbindung mit dem Mitspieler her.
@@ -54,6 +56,9 @@ public class BluetoothService {
     private ConnectDevicesThread connectDevicesThread;
     private ConnectionManagerThread connectionManagerThread;
 
+    // MultiplayerActivity
+    GPMultiActivity multiActivity;
+
     // BT Adapter
     private BluetoothAdapter mBTAdapter;
 
@@ -63,7 +68,6 @@ public class BluetoothService {
     // Verbindungsstatus
     private int mState;
 
-    private String myName;
 
     /*
     Konstruktor fuer diesen Service
@@ -72,7 +76,11 @@ public class BluetoothService {
         mBTAdapter = adapter;
         mState = STATE_NONE;
         mHandler = handler;
-        myName = mBTAdapter.getName();
+
+        if (context instanceof GPMultiActivity) {
+            multiActivity = (GPMultiActivity) context;
+        }
+
     }
 
     /*
@@ -216,9 +224,29 @@ public class BluetoothService {
     }
 
     /*
-    Die Position uebertragen
+    Nachrichten uebertragen
      */
     public void write(byte[] out) {
+        // Tmp Thread Objekt
+        ConnectionManagerThread cm;
+
+        // Eine Kopie des richtigen ConnectionManager Threads
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) {
+                return;
+            }
+            cm = connectionManagerThread;
+        }
+
+        // Datenuebertragung unsynchronisiert
+        Log.d(TAG, "call write() from BluetoothService ");
+        cm.write(out);
+    }
+
+    /*
+    Die Position uebertragen
+     */
+    public void writePosition(byte[] out) {
 
         // Tmp Thread Objekt
         ConnectionManagerThread cm;
@@ -241,8 +269,8 @@ public class BluetoothService {
      */
     public void connectionFailed() {
 
-        // Hardcoded, da dem Handler (momentan) keine ResIds mitgegeben werden koennen
-        final String UIMsg = "Konnte keine Verbindung zum Ger\\u00E4t herstellen";
+        // Message holen
+        final String UIMsg = multiActivity.getString(R.string.could_not_connect);
 
         // Fehlermeldung an die Activity senden
         Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
@@ -250,6 +278,8 @@ public class BluetoothService {
         bundle.putString(Constants.TOAST, UIMsg);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
+
+        multiActivity.setActiveConnection(false);
 
         // Service wier in den Horchmodus
         Log.d(TAG, "startConnection() from connectionFailed()");
@@ -268,6 +298,9 @@ public class BluetoothService {
         bundle.putString(Constants.TOAST, "Verbindung wurde getrennt");
         msg.setData(bundle);
         mHandler.sendMessage(msg);
+
+        multiActivity.setActiveConnection(false);
+        multiActivity.getBtnAction().setText(multiActivity.getString(R.string.start_search));
 
         // Service wier in den Horchmodus
         Log.d(TAG, "startConnection() from connectionLost()");
@@ -361,6 +394,7 @@ public class BluetoothService {
                             case STATE_LISTEN:
                                 // einfach weiter
                             case STATE_CONNECTING:
+                                setState(STATE_CONNECTING);
                                 // starte ausgehende Verbindungen
                                 manageConnection(btSocket, btSocket.getRemoteDevice(), mSocketType);
                                 Log.d(TAG, "Ended AcceptBtConnection with startManager()");
@@ -487,17 +521,15 @@ public class BluetoothService {
                 }
             }
 
-            // ConnectionManager Thread starten, wenn Verbindung besteht
-            if (mSocket.isConnected()) {
-
-                // Connect-Thread zuruecksetzen, da fertig
-                synchronized (BluetoothService.this) {
-                    connectDevicesThread = null;
-                    insecureAcceptConnectionThread = null;
-                    secureAcceptConnectionThread = null;
-                }
-                manageConnection(mSocket, mDevice, mSocketType);
+            // Connect-Thread zuruecksetzen, da fertig
+            synchronized (BluetoothService.this) {
+                connectDevicesThread = null;
+                insecureAcceptConnectionThread = null;
+                secureAcceptConnectionThread = null;
             }
+
+            // ConnectionManager Thread starten, wenn Verbindung besteht
+            manageConnection(mSocket, mDevice, mSocketType);
         }
 
         /*
@@ -561,9 +593,8 @@ public class BluetoothService {
          */
         public void run() {
             Log.d(TAG, "ConnectionManager.start()");
-
             // Byte-Array initialisieren TODO: Arraygroesse austeseten welche groesse benoetigt wird.
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[Constants.STREAM_BUFFER_SIZE];
 
             // Bytelaenge aus den Streams
             int bytes;
@@ -575,8 +606,14 @@ public class BluetoothService {
                     bytes = mInputStream.read(buffer);
 
                     // erhaltene Daten an das UI senden
-                    mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
+                    if (!multiActivity.isRunningGame()) {
+                        mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
+                                .sendToTarget();
+                    } else {
+                        multiActivity.setRecievedPosByteArray(buffer);
+                        mHandler.obtainMessage(Constants.POSITION_READ, bytes, -1, buffer)
+                                .sendToTarget();
+                    }
                 } catch (IOException e) {
                     Log.e(TAG, "devices disconnected", e);
                     connectionLost();
@@ -592,14 +629,17 @@ public class BluetoothService {
         In den OutputStream schreiben
          */
         public void write(byte[] buffer) {
+            Log.d(TAG, "start write() from ConnectionThread");
             try {
                 // Positionen senden
                 mOutputStream.write(buffer);
 
-                // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, "Hello wurde versendet")
-                        .sendToTarget();
-                Log.i(TAG, "sent Positions to device");
+                // TODO: Nachricht was gesendet wurde, muss aber noch umgebaut werden das bei den Positionen keine Beanchrichtigung kommt
+                if (!multiActivity.isRunningGame()) {
+//                    mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, "Hello wurde versendet")
+//                            .sendToTarget();
+                }
+                Log.d(TAG, "message or position sent to other device");
             } catch (IOException e) {
                 Log.e(TAG, "could not send Position to other device", e);
             }
@@ -616,13 +656,5 @@ public class BluetoothService {
                 Log.e(TAG, "Could not close socket to Bluetooth device", e);
             }
         }
-    }
-
-
-    public String getMyName() {
-        if (myName == null) {
-            myName = "Unbekannt";
-        }
-        return myName;
     }
 }
