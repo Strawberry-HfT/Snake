@@ -2,7 +2,7 @@ package de.hft.stuttgart.strawberry.common;
 
 import android.graphics.Point;
 
-import de.hft.stuttgart.strawberry.views.TileView;
+import de.hft.stuttgart.strawberry.views.GPSingleSurfaceView;
 
 /**
  * Created by Tommy_2 on 06.04.2015.
@@ -24,8 +24,8 @@ public class Strawberry {
     public void createBerryPosition(){
 
         // Zufallspunkte
-        int xKoordinate = (int) ((Math.random()* TileView.X_TILE_COUNT-1));
-        int yKoordinate = (int) ((Math.random()* TileView.Y_TILE_COUNT-1));
+        int xKoordinate = (int) ((Math.random()* Constants.XTILE_COUNT-1));
+        int yKoordinate = (int) ((Math.random()* Constants.YTILE_COUNT-1));
 
         // Prüft ob Wert auf Schlange erzeugt wird
         if(playingField[xKoordinate][yKoordinate] != 2){

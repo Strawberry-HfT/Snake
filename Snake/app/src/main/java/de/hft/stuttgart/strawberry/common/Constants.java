@@ -26,6 +26,10 @@ public class Constants {
 
     public static final int STREAM_BUFFER_SIZE = 1024;
 
+    // Spielfeldgröße
+    public final static int XTILE_COUNT = 34;
+    public final static int YTILE_COUNT = 20;
+
 
 
 

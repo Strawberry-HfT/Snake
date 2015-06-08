@@ -12,16 +12,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import de.hft.stuttgart.strawberry.views.GPSingleView;
 import de.hft.stuttgart.strawberry.common.Movement;
-import de.hft.stuttgart.strawberry.snake.R;
-import de.hft.stuttgart.strawberry.snake.Snake;
 import de.hft.stuttgart.strawberry.controllers.SnakeGestureListener;
 import de.hft.stuttgart.strawberry.controllers.SnakeSensorEventListener;
-import de.hft.stuttgart.strawberry.common.Strawberry;
+import de.hft.stuttgart.strawberry.snake.R;
+import de.hft.stuttgart.strawberry.views.GPSingleSurfaceView;
 
 /**
  * Von hier aus wird das Game-Play des
@@ -36,20 +31,13 @@ public class GPSingleActivity extends Activity {
     private static final int EASY = 1;
     private static final int MEDIUM = 2;
     private static final int HARD = 3;
-
+    // Hält übergebene Schwierigkeit aus Fragment
     int difficulty;
+    // gesetze Spielgeschwindigkeit
+    private int selectedDifficulty;
 
-    // Anfangslänge der Schlange
-    private static final int INIT_SNAKE_LENGTH = 3;
-
-    // View in Activity
-    private GPSingleView view;
-
-    // Schlange
-    private Snake snake;
-
-    // Beere
-    private Strawberry strawberry;
+    // View zur Activity
+    private GPSingleSurfaceView testView;
 
     // Variable für Bewegung
     private Movement direction;
@@ -61,17 +49,18 @@ public class GPSingleActivity extends Activity {
     // Gestendetektor
     private GestureDetectorCompat gestureDetector;
 
-    // Lenkung der Schlange, wenn true dann Rotationssensor
-    // Initialwert = false
+    /*
+    Lenkung der Schlange, wenn true dann Rotationssensor
+    Initialwert = false
+    */
     private boolean lenkungSensor = false;
 
     // Musik
     private boolean music = true;
     private MediaPlayer mediaPlayer;
 
-    // gesetze Spielgeschwindigkeit
-    private int selectedDifficulty;
 
+    // Beim Erstellen der Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,10 +72,10 @@ public class GPSingleActivity extends Activity {
         this.initDifficulty();
 
         // Initialisiert View
-        this.view = new GPSingleView(this);
+        this.testView = new GPSingleSurfaceView(this);
 
         // Vollbildmodus der View, ab Android 4.4
-        view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        testView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -94,16 +83,12 @@ public class GPSingleActivity extends Activity {
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         // Verknüpft die Activity mit der View
-        this.setContentView(view);
+        this.setContentView(testView);
 
-        // Initialisierung Variablen (Schlange, Beere)
-        this.snake = new Snake(INIT_SNAKE_LENGTH, this.view.getmTileGrid());
-        this.strawberry = new Strawberry(this.view.getmTileGrid());
+        // Initialisiert Variable zur Lenkung
         this.direction = new Movement();
 
-        // startet Timer
-        startTimer();
-
+        // Entscheidet ob Gestensteuerung oder Rotationssensoren
         if(lenkungSensor) {
             // Sensor starten
             this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -114,37 +99,6 @@ public class GPSingleActivity extends Activity {
             // Gestensensor, registiert die Klasse als Context und den ausgelagerten Listener
             this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
         }
-
-        if (music){
-            // Musik
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setLooping(true);
-            mediaPlayer.start();
-        }
-    }
-
-    // Startet Timer
-    private void startTimer() {
-        // (Thread)Zeichnet die View immer wieder neu
-        Timer myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        strawberry.drawBerry();
-                        snake.moveSnake(GPSingleActivity.this.direction);
-                        snake.checkCollisionBerry(strawberry);
-                        if(snake.checkCollisionSnake()){
-                            mediaPlayer.stop();
-                            finish();
-                        }
-                        view.invalidate();
-                    }
-                });
-            }
-        }, 0, selectedDifficulty);
     }
 
     /*
@@ -210,5 +164,30 @@ public class GPSingleActivity extends Activity {
     protected void onPause() {
         super.onPause();
         mediaPlayer.stop();
+        this.testView.pause();
     }
+
+    // Überschreiben aus Superklasse, zum starten des Spiels
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (music){
+            // Musik
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setLooping(true);
+            mediaPlayer.start();
+        }
+        this.testView.resume();
+    }
+
+    // Getter
+    public Movement getDirection() {
+        return direction;
+    }
+
+    public int getSelectedDifficulty() {
+        return selectedDifficulty;
+    }
+
+
 }

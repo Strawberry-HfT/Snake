@@ -4,9 +4,10 @@ import android.graphics.Point;
 
 import java.util.ArrayList;
 
+import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.common.Movement;
 import de.hft.stuttgart.strawberry.common.Strawberry;
-import de.hft.stuttgart.strawberry.views.TileView;
+import de.hft.stuttgart.strawberry.views.GPSingleSurfaceView;
 
 /**
  * Created by Tommy_2 on 26.03.2015.
@@ -62,14 +63,14 @@ public class Snake {
         // Nach Oben
         if (direction.isUp()) {
             if(position.get(0).y <= 0){
-                position.get(0).y = TileView.Y_TILE_COUNT-1;
+                position.get(0).y = Constants.YTILE_COUNT-1;
             } else {
                 this.position.get(0).y -= 1;
             }
         }
         // Nach Unten
         if (direction.isDown()) {
-            if(position.get(0).y >= TileView.Y_TILE_COUNT-1){
+            if(position.get(0).y >= Constants.YTILE_COUNT-1){
                 position.get(0).y = 0;
             } else {
                 this.position.get(0).y += 1;
@@ -77,7 +78,7 @@ public class Snake {
         }
         // Nach Rechts
         if (direction.isRight()) {
-            if (position.get(0).x >= TileView.X_TILE_COUNT-1) {
+            if (position.get(0).x >= Constants.XTILE_COUNT-1) {
                 position.get(0).x = 0;
             } else {
                 this.position.get(0).x += 1;
@@ -87,7 +88,7 @@ public class Snake {
         // Nach Links
         if (direction.isLeft()) {
             if (position.get(0).x <= 0) {
-                position.get(0).x = TileView.X_TILE_COUNT-1;
+                position.get(0).x = Constants.XTILE_COUNT-1;
             } else {
                 this.position.get(0).x -= 1;
             }
