@@ -281,7 +281,7 @@ public class BluetoothService {
 
         multiActivity.setActiveConnection(false);
 
-        // Service wier in den Horchmodus
+        // Service wieder in den Horchmodus
         Log.d(TAG, "startConnection() from connectionFailed()");
         BluetoothService.this.startConnection();
     }
@@ -300,9 +300,8 @@ public class BluetoothService {
         mHandler.sendMessage(msg);
 
         multiActivity.setActiveConnection(false);
-        multiActivity.getBtnAction().setText(multiActivity.getString(R.string.start_search));
 
-        // Service wier in den Horchmodus
+        // Service wieder in den Horchmodus
         Log.d(TAG, "startConnection() from connectionLost()");
         BluetoothService.this.startConnection();
     }
@@ -414,7 +413,6 @@ public class BluetoothService {
                     }
                     Log.d(TAG, "finished AcceptBTConnection.start()");
                 }
-                Log.d(TAG, "Ended AcceptBtConnection with socket = null and socket state: " + mState);
             }
         }
 
@@ -615,7 +613,7 @@ public class BluetoothService {
                                 .sendToTarget();
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "devices disconnected", e);
+                    Log.w(TAG, "devices disconnected");
                     connectionLost();
 
                     // Start the service over to restart listening mode

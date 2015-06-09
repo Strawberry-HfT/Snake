@@ -10,7 +10,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import de.hft.stuttgart.strawberry.activities.GPMultiActivity;
-import de.hft.stuttgart.strawberry.activities.GPSingleActivity;
 import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.common.Strawberry;
 import de.hft.stuttgart.strawberry.snake.Snake;
@@ -49,7 +48,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     private Paint tPaint = new Paint();
 
     // Schwierigkeit
-    int difficulity;
+    int difficulty;
 
     // F�r SurfaceView
     SurfaceHolder surfaceHolder;
@@ -64,7 +63,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
         // Zweidimensionales Array mit der Anzahl der X und X Fliesen
         tTileGrid = new int[Constants.XTILE_COUNT][Constants.YTILE_COUNT];
         // Schwierigkeit aus Activity
-        this.difficulity = this.activity.getLevelSpeed();
+        this.difficulty = this.activity.getLevelSpeed();
         surfaceHolder = getHolder();
 
     }
@@ -118,7 +117,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
             }
             surfaceHolder.unlockCanvasAndPost(canvas);
             try {
-                Thread.sleep(difficulity);
+                Thread.sleep(difficulty);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -142,6 +141,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     // Wird von der Activity aufgerufen, wenn das Spiel gestartet wird. Startet den Thread
     public void resume(){
         Log.d(TAG, "resume()");
+        activity.sendPosition();
         isRunning = true;
         thread = new Thread(this);
         thread.start();

@@ -94,9 +94,6 @@ public class BluetoothSearchActivity extends Activity {
             mBTAdapter.cancelDiscovery();
         }
 
-        // Empfaenger deaktivieren
-        this.unregisterReceiver(myReceiver);
-
         // Ergebnis setzen und diese Activity beenden
         setResult(Activity.RESULT_CANCELED, intent);
         finish();

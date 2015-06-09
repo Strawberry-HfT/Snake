@@ -220,7 +220,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, "GPMulti onPause()");
+        Log.d(TAG, "onPause()");
+        btnAction.setText(getString(R.string.start_search));
 //        if (mBtService != null) {
 //            mBtService.stop();
 //        }
@@ -233,6 +234,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume()");
         // das hier muss implementiert werden, denn wenn bei onStart BT nicht aktiviert war,
         // wird das hier nach Aktivierung von BT aufgerufen.
         if (mBtService != null) {
@@ -286,7 +288,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     // Überschreiben aus Superklasse, zum Registrieren der Gesten
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
+        if (gestureDetector != null) {
+            gestureDetector.onTouchEvent(event);
+        }
         return super.onTouchEvent(event);
     }
 
@@ -414,7 +418,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     Versendet die aktuelle Position der Schlange
     TODO Beere fehlt noch
      */
-    private synchronized void sendPosition() {
+    public synchronized void sendPosition() {
         Log.d(TAG, "prepare sendPosition()");
 
         // Pruefung, ob eine aktive Verbindung besteht
@@ -581,6 +585,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 if (resultCode == Activity.RESULT_OK) {
                     String msg = getString(R.string.bt_turned_on);
                    Toast.makeText(GPMultiActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    this.onStart();
                 } else {
                     // User did not enable Bluetooth or an error occurred
                     Log.d(TAG, "BT not enabled");
@@ -635,26 +640,32 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                     // byte[] to string
                     byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
-
+                    StringBuffer levelText;
 
                     // hier verarbeitet der dude die Benachrichtigungen
                     if(!isFirstPlayer()) {
+                        levelText = new StringBuffer();
+                        levelText.append(getString(R.string.dude_chose, mConnectedDeviceName));
+
                         if(readMessage.equals(Constants.NOTIFIER_SELECTED)) {
                             setLevelSelected(true);
                         } else if (readMessage.contains(Constants.NOTIFIER_STARTED)) {
                             setRunningGame(true);
                         } else if (readMessage.equals(String.valueOf(Constants.SPEED_EASY))) {
+                            levelText.append(getString(R.string.easy));
                             levelSpeed = Constants.SPEED_EASY;
                             setLevelSelected(true);
-                            Toast.makeText(GPMultiActivity.this, "leicht", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GPMultiActivity.this, levelText, Toast.LENGTH_SHORT).show();
                         } else if (readMessage.equals(String.valueOf(Constants.SPEED_MEDIUM))) {
+                            levelText.append(getString(R.string.medium));
                             levelSpeed = Constants.SPEED_MEDIUM;
                             setLevelSelected(true);
-                            Toast.makeText(GPMultiActivity.this, "mittel", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GPMultiActivity.this, levelText, Toast.LENGTH_SHORT).show();
                         } else if (readMessage.equals(String.valueOf(Constants.SPEED_HARD))) {
+                            levelText.append(getString(R.string.hard));
                             levelSpeed = Constants.SPEED_HARD;
                             setLevelSelected(true);
-                            Toast.makeText(GPMultiActivity.this, "schwer", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GPMultiActivity.this, levelText, Toast.LENGTH_SHORT).show();
                         }
 //                        long index = readBuf.
                     }
