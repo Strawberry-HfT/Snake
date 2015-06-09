@@ -628,17 +628,12 @@ public class BluetoothService {
         /*
         In den OutputStream schreiben
          */
-        public void write(byte[] buffer) {
+        public synchronized void write(byte[] buffer) {
             Log.d(TAG, "start write() from ConnectionThread");
             try {
                 // Positionen senden
                 mOutputStream.write(buffer);
 
-                // TODO: Nachricht was gesendet wurde, muss aber noch umgebaut werden das bei den Positionen keine Beanchrichtigung kommt
-                if (!multiActivity.isRunningGame()) {
-//                    mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, "Hello wurde versendet")
-//                            .sendToTarget();
-                }
                 Log.d(TAG, "message or position sent to other device");
             } catch (IOException e) {
                 Log.e(TAG, "could not send Position to other device", e);

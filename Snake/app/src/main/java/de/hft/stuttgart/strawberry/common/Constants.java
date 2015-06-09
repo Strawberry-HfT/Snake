@@ -14,6 +14,10 @@ public class Constants {
     public static final int MESSAGE_TOAST = 5;
 
     public static final int POSITION_READ = 6;
+    public static final int LEVEL_SPEED = 7;
+
+    public static final long STAMP_IDEX = 55;
+
 
     // Schluesselwoerter fuer den Handler
     public static final String DEVICE_NAME = "device_name";
@@ -29,6 +33,10 @@ public class Constants {
     // Spielfeldgröße
     public final static int XTILE_COUNT = 34;
     public final static int YTILE_COUNT = 20;
+
+    public final static int SPEED_EASY = 300;
+    public final static int SPEED_MEDIUM = 200;
+    public final static int SPEED_HARD = 100;
 
 
 

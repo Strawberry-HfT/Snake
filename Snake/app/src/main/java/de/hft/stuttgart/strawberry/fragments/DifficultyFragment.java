@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import de.hft.stuttgart.strawberry.activities.GPMultiActivity;
 import de.hft.stuttgart.strawberry.activities.MainActivity;
+import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.snake.R;
 
 /**
@@ -25,17 +26,11 @@ public class DifficultyFragment extends DialogFragment {
     // TAG für den Logger
     private static final String TAG = DifficultyFragment.class.getSimpleName();
 
-    // Schwierigkeitsgrade
-    private static final int NONE = 0;
-    private static final int EASY = 1;
-    private static final int MEDIUM = 2;
-    private static final int HARD = 3;
-
     // View zum Fragment
     private View myInflatedView;
 
     // Ausgewählte Schwierigkeit als int
-    private int selectedDifficulty;
+    private int selectedGameSpeed;
 
     // Spielen Button zum Starten des Spiels
     private Button btnAccept;
@@ -78,14 +73,14 @@ public class DifficultyFragment extends DialogFragment {
 
             MainActivity mainActivity = (MainActivity) activity;
 
-            mainActivity.setSelectedDifficulty(selectedDifficulty);
+            mainActivity.setSelectedDifficulty(selectedGameSpeed);
             mainActivity.setLevelSelected(true);
             mainActivity.onDismiss(dialog);
         } else if (activity instanceof GPMultiActivity) {
 
             GPMultiActivity multiActivity = (GPMultiActivity) activity;
 
-            multiActivity.setSelectedDifficulty(selectedDifficulty);
+            multiActivity.setLevelSpeed(selectedGameSpeed);
             multiActivity.setLevelSelected(true);
             multiActivity.onDismiss(dialog);
         }
@@ -110,19 +105,19 @@ public class DifficultyFragment extends DialogFragment {
 
                 //TODO besser als Switch-Case schreiben
                 if (checkedId == R.id.einfach) {
-                    selectedDifficulty = EASY;
+                    selectedGameSpeed = Constants.SPEED_EASY;
 //                    Toast.makeText(getActivity(), "Leicht", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
                 } else if (checkedId == R.id.mittel) {
-                    selectedDifficulty = MEDIUM;
+                    selectedGameSpeed = Constants.SPEED_MEDIUM;
 //                    Toast.makeText(getActivity(), "Mittel", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
 
                 } else if (checkedId == R.id.schwer) {
-                    selectedDifficulty = HARD;
+                    selectedGameSpeed = Constants.SPEED_HARD;
 //                    Toast.makeText(getActivity(), "Schwer", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
                 }
 
                 // Wenn keine Schwierigkeit gewählt wurde
-                if (selectedDifficulty == NONE) {
+                if (selectedGameSpeed == 0) {
                     Toast.makeText(getActivity(), "Schwierigkeitsgrad auswählen", Toast.LENGTH_SHORT).show();//TODO aus Strings holen
                 } else {
                     dismiss();

@@ -30,19 +30,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import de.hft.stuttgart.strawberry.bluetoothservice.BluetoothService;
 import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.common.Movement;
-import de.hft.stuttgart.strawberry.common.Strawberry;
 import de.hft.stuttgart.strawberry.controllers.SnakeGestureListener;
 import de.hft.stuttgart.strawberry.controllers.SnakeSensorEventListener;
 import de.hft.stuttgart.strawberry.fragments.DifficultyFragment;
 import de.hft.stuttgart.strawberry.snake.R;
-import de.hft.stuttgart.strawberry.snake.Snake;
-import de.hft.stuttgart.strawberry.views.GPSingleView;
+import de.hft.stuttgart.strawberry.views.GPMultiSurfaceView;
+
 
 /**
  * In dieser Activity wird die Verbindung zwischen zwei Geraeten
@@ -60,11 +57,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
     public static final int REQUEST_DISCOVERABLE = 4;
-
-    // Schwierigkeitsgrade
-    private static final int EASY = 1;
-    private static final int MEDIUM = 2;
-    private static final int HARD = 3;
 
     // Name des verbundenen Geraetes
     private String mConnectedDeviceName = null;
@@ -90,19 +82,13 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private boolean activeConnection = false;
 
     // Anfangslänge der Schlange
-    private static final int INIT_SNAKE_LENGTH = 3;
+//    private static final int INIT_SNAKE_LENGTH = 3;
 
     // View in Activity
-    private GPSingleView singleView;
+    private GPMultiSurfaceView multiView;
 
-    // Timer zum neuzeichnen der GP View
-    Timer myTimer;
-
-    // Schlange
-    private Snake snake;
-
-    // Beere
-    private Strawberry strawberry;
+    // Start TimeStamp
+    long startTime;
 
     // Variable für Bewegung
     private Movement direction;
@@ -123,7 +109,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private MediaPlayer mediaPlayer;
 
     // gesetzte Schwierigkeit
-    private int selectedDifficulty;
+//    private int selectedDifficulty;
 
     // gesetze Spielgeschwindigkeit
     private int levelSpeed;
@@ -142,6 +128,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
     // empfangene Position als byte[]
     private byte[] recievedPosByteArray = null;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,6 +183,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "GPMulti onDestroy()");
         if (mBtService != null) {
             Log.d(TAG, "stopping Threads from onDestroy()");
             mBtService.stop();
@@ -231,6 +220,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "GPMulti onPause()");
 //        if (mBtService != null) {
 //            mBtService.stop();
 //        }
@@ -268,14 +258,14 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         // Der Schwierigkeitsgrad wird für beide Spieler angezeigt
         StringBuffer lvlMsg = new StringBuffer();
         lvlMsg.append(getString(R.string.difficulty));
-        switch (selectedDifficulty) {
-            case EASY:
+        switch (levelSpeed) {
+            case Constants.SPEED_EASY:
                 lvlMsg.append(getString(R.string.easy));
                 break;
-            case MEDIUM:
+            case Constants.SPEED_MEDIUM:
                 lvlMsg.append(getString(R.string.medium));
                 break;
-            case HARD:
+            case Constants.SPEED_HARD:
                 lvlMsg.append(getString(R.string.hard));
                 break;
         }
@@ -283,9 +273,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         // fuer Spieler 1
         Toast.makeText(this, lvlMsg, Toast.LENGTH_SHORT).show();
 
-        // fuer Spieler 2
-        Log.d(TAG, "notifyDudeAboutLevel..");
-        sendNotification(lvlMsg.toString());
+//        // fuer Spieler 2
+//        Log.d(TAG, "notifyDudeAboutLevel..");
+//        sendNotification(lvlMsg.toString());
 
         Log.d(TAG, "selected: " + lvlMsg);
 
@@ -303,14 +293,14 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     /*
     Multiplayer starten
      */
-    private void startGame() {
+    private void startGame(long startTime) {
 
-        this.singleView = new GPSingleView(this);
+        this.initMusicSpeedByLevel();
 
-        this.initSnakeSpeed();
+        this.multiView = new GPMultiSurfaceView(this);
 
         // Vollbildmodus der View, ab Android 4.4
-        singleView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        multiView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -318,21 +308,21 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         // Verknüpft die Activity mit der View
-        this.setContentView(singleView);
+        this.setContentView(multiView);
 
-        // Ausrichtung Bildschirm (wird festgehalten)
-//        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // TODO auskommentiert, da es einen noch unbekannten Fehler verursacht
+
+
 
         // Ablauf wenn das das Spiel gestartet wird
         // beim ersten Spieler wird auch die Erdbeere verwaltet
         if (isFirstPlayer()) {
             // Initialisierung Variablen (Schlange, Beere)
-            this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
-            this.strawberry = new Strawberry(this.singleView.getmTileGrid());
+//            this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
+//            this.strawberry = new Strawberry(this.singleView.getmTileGrid());
             this.direction = new Movement();
 
             // startet Timer
-            startTimer();
+//            startTimer();
 
             if(lenkungSensor) {
                 // Sensor starten
@@ -353,44 +343,65 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             }
 
             setRunningGame(true);
-            notifyDudeGameStarted();
-            sendPosition(); // TODO hier versende ich einmalig die startpostition zum dude als test obs ankommt (muss wieder raus)
+
+
+            // Ausrichtung Bildschirm (wird festgehalten)
+//            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // TODO auskommentiert, da es einen noch unbekannten Fehler verursacht
+
+//            sendPosition(); // TODO hier versende ich einmalig die startpostition zum dude als test obs ankommt (muss wieder raus)
         } else { // TODO hier muss für den zweiten Player noch die view erstellt werden (glaub) und die schlange vom ersten player geholt werden
-            // beim zweiten Spieler wird nur die eigene Schlange initialisiert
-//                this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
-//                this.direction = new Movement();
+            this.direction = new Movement();
+
+            // startet Timer
+//            startTimer();
+
+            if(lenkungSensor) {
+                // Sensor starten
+                this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+                this.sensorAccelorometer = this.sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                this.sensorManager.registerListener(new SnakeSensorEventListener(this.direction), sensorAccelorometer, SensorManager.SENSOR_DELAY_NORMAL);
+            }
+            if(!lenkungSensor) {
+                // Gestensensor, registiert die Klasse als Context und den ausgelagerten Listener
+                this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
+            }
+
+            if (music){
+                // Musik
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mediaPlayer.setLooping(true);
+                mediaPlayer.start();
+            }
+
+            setRunningGame(true);
         }
     }
 
     /*
-    Initialisiert die Werte, die von der Schwierigkeitsauswahl abhängen
+    Initialisiert die Musikgeschwindigkeit
      */
-    private void initSnakeSpeed() {
+    private void initMusicSpeedByLevel() {
         if (music) {
             mediaPlayer = new MediaPlayer();
         }
 
-        switch (selectedDifficulty) {
-            case EASY:
-                levelSpeed = 300;
+        switch (levelSpeed) {
+            case Constants.SPEED_EASY:
                 if (mediaPlayer != null) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audioeasy);
                 }
                 break;
-            case MEDIUM:
-                levelSpeed = 180;
+            case Constants.SPEED_MEDIUM:
                 if (mediaPlayer != null) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
                 }
                 break;
-            case HARD:
-                levelSpeed = 80;
+            case Constants.SPEED_HARD:
                 if (mediaPlayer != null) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audiohard);
                 }
                 break;
             default:
-                levelSpeed = 300;
                 if (mediaPlayer != null) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
                 }
@@ -398,30 +409,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         }
     }
 
-    // Startet Timer
-    private void startTimer() {
-        Log.d(TAG, "BEGIN startTimer()");
-        // (Thread)Zeichnet die View immer wieder neu
-        myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        strawberry.drawBerry();
-                        snake.moveSnake(GPMultiActivity.this.direction);
-                        snake.checkCollisionBerry(strawberry);
-                        if (snake.checkCollisionSnake()) {
-                            mediaPlayer.stop();
-                            finish();
-                        }
-                        singleView.invalidate();
-                    }
-                });
-            }
-        }, 0, levelSpeed);
-    }
 
     /*
     Versendet die aktuelle Position der Schlange
@@ -436,7 +423,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         } else if (isRunningGame()) {
 
             // aktuelle Position der Schlange
-            ArrayList<Point> positions = snake.getPosition();
+            // TODO schauen ob die Position immernoch geholt wird
+            ArrayList<Point> positions = multiView.getSnake().getPosition();
 
 //            StringBuffer buffer = new StringBuffer();
 
@@ -513,6 +501,36 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             // Benachrichtigung konvertieren und versenden
             byte[] send = message.getBytes();
             mBtService.write(send);
+
+            // string buffer zuruecksetzen
+            mOutStringBuffer.setLength(0);
+        }
+    }
+
+    private void sendNotification(long message) {
+
+        // Pruefung, ob eine aktive Verbindung besteht
+        if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
+            Toast.makeText(this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Benachrichtigung senden
+        if (message > 0) {
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+            try {
+                dos.writeLong(Constants.STAMP_IDEX);
+                dos.writeLong(message);
+                dos.close();
+            } catch (IOException e) {
+                Log.d(TAG, "Long in byte[] konvertiert");
+            }
+
+            byte[] longBytes = baos.toByteArray();
+
+            mBtService.write(longBytes);
 
             // string buffer zuruecksetzen
             mOutStringBuffer.setLength(0);
@@ -618,15 +636,27 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                     byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
 
+
                     // hier verarbeitet der dude die Benachrichtigungen
                     if(!isFirstPlayer()) {
                         if(readMessage.equals(Constants.NOTIFIER_SELECTED)) {
                             setLevelSelected(true);
                         } else if (readMessage.contains(Constants.NOTIFIER_STARTED)) {
                             setRunningGame(true);
-                        } else {
-                            Toast.makeText(GPMultiActivity.this, readMessage, Toast.LENGTH_SHORT).show();
+                        } else if (readMessage.equals(String.valueOf(Constants.SPEED_EASY))) {
+                            levelSpeed = Constants.SPEED_EASY;
+                            setLevelSelected(true);
+                            Toast.makeText(GPMultiActivity.this, "leicht", Toast.LENGTH_SHORT).show();
+                        } else if (readMessage.equals(String.valueOf(Constants.SPEED_MEDIUM))) {
+                            levelSpeed = Constants.SPEED_MEDIUM;
+                            setLevelSelected(true);
+                            Toast.makeText(GPMultiActivity.this, "mittel", Toast.LENGTH_SHORT).show();
+                        } else if (readMessage.equals(String.valueOf(Constants.SPEED_HARD))) {
+                            levelSpeed = Constants.SPEED_HARD;
+                            setLevelSelected(true);
+                            Toast.makeText(GPMultiActivity.this, "schwer", Toast.LENGTH_SHORT).show();
                         }
+//                        long index = readBuf.
                     }
                     break;
                 // Wenn der Name des anderen Geraetes kommt
@@ -720,6 +750,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                         Toast.makeText(GPMultiActivity.this, positionListString, Toast.LENGTH_LONG).show();
                     }
                     break;
+                case Constants.LEVEL_SPEED:
+
             }
         }
     };
@@ -760,8 +792,12 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 if (!activeConnection) {
                     startFindDevices();
                 } else {
-                    if(isFirstPlayer()) { // TODO vorerst startet nur beim ersten Player die GameView
-                        startGame();
+                    if(isFirstPlayer()) {
+
+                        // Aktuelle Zeit + 5 Sekunden
+                        startTime = System.currentTimeMillis()+5000;
+                        notifyDudeGameStarted(startTime);
+                        startGame(startTime);
                     }
                 }
             }
@@ -794,14 +830,17 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
      */
     private void notifyDudeLevelSelected() {
         Log.d(TAG, "notifyDudeLevelSelected()");
+        String speed = String.valueOf(levelSpeed);
         if (isFirstPlayer()) {
-            sendNotification(Constants.NOTIFIER_SELECTED);
+//            sendNotification(Constants.NOTIFIER_SELECTED);
+            sendNotification(speed);
         }
     }
 
-    private void notifyDudeGameStarted() {
+    private void notifyDudeGameStarted(long startTime) {
         Log.d(TAG, "notifyDudeGameStarted()");
         if (isFirstPlayer()) {
+            sendNotification(String.valueOf(startTime));
             sendNotification(Constants.NOTIFIER_STARTED);
         }
     }
@@ -851,10 +890,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         return mHandler;
     }
 
-    public void setSelectedDifficulty(int selectedDifficulty) {
-        this.selectedDifficulty = selectedDifficulty;
-    }
-
     public boolean isLevelSelected() {
         return levelSelected;
     }
@@ -901,7 +936,19 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         this.recievedPosByteArray = recievedPosByteArray;
     }
 
+    public void setLevelSpeed(int levelSpeed) {
+        this.levelSpeed = levelSpeed;
+    }
+
     public Button getBtnAction() {
         return btnAction;
+    }
+
+    public int getLevelSpeed() {
+        return levelSpeed;
+    }
+
+    public Movement getDirection() {
+        return direction;
     }
 }
