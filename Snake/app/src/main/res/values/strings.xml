@@ -34,6 +34,6 @@
     <string name="easy">Leicht</string>
     <string name="medium">Mittel</string>
     <string name="hard">Schwer</string>
-    <string name="dude_chose"><xliff:g id="device_name">%1$s</xliff:g> w\u00E4lte\u0020</string>
+    <string name="dude_chose"><xliff:g id="device_name">%1$s</xliff:g> w\u00E4hlte\u0020</string>
 
 </resources>

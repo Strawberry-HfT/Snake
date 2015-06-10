@@ -314,9 +314,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         // Verknüpft die Activity mit der View
         this.setContentView(multiView);
 
-
-
-
         // Ablauf wenn das das Spiel gestartet wird
         // beim ersten Spieler wird auch die Erdbeere verwaltet
         if (isFirstPlayer()) {
@@ -324,6 +321,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 //            this.snake = new Snake(INIT_SNAKE_LENGTH, this.singleView.getmTileGrid());
 //            this.strawberry = new Strawberry(this.singleView.getmTileGrid());
             this.direction = new Movement();
+            this.direction.setRight(true);
 
             // startet Timer
 //            startTimer();
@@ -347,15 +345,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             }
 
             setRunningGame(true);
-
-
-            // Ausrichtung Bildschirm (wird festgehalten)
-//            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // TODO auskommentiert, da es einen noch unbekannten Fehler verursacht
-
-//            sendPosition(); // TODO hier versende ich einmalig die startpostition zum dude als test obs ankommt (muss wieder raus)
-        } else { // TODO hier muss für den zweiten Player noch die view erstellt werden (glaub) und die schlange vom ersten player geholt werden
+        } else {
             this.direction = new Movement();
-
+            this.direction.setLeft(true);
             // startet Timer
 //            startTimer();
 
@@ -366,7 +358,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 this.sensorManager.registerListener(new SnakeSensorEventListener(this.direction), sensorAccelorometer, SensorManager.SENSOR_DELAY_NORMAL);
             }
             if(!lenkungSensor) {
-                // Gestensensor, registiert die Klasse als Context und den ausgelagerten Listener
+                // Gestensensor, registriert die Klasse als Context und den ausgelagerten Listener
                 this.gestureDetector = new GestureDetectorCompat(this, new SnakeGestureListener(this.direction));
             }
 
@@ -651,6 +643,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                             setLevelSelected(true);
                         } else if (readMessage.contains(Constants.NOTIFIER_STARTED)) {
                             setRunningGame(true);
+                            startGame(0);
                         } else if (readMessage.equals(String.valueOf(Constants.SPEED_EASY))) {
                             levelText.append(getString(R.string.easy));
                             levelSpeed = Constants.SPEED_EASY;

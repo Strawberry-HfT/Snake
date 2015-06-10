@@ -30,7 +30,7 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
     private Snake snake;
     private Strawberry strawberry;
 
-    // Größe der Fließe, wird berechnet
+    // Größe der Fliese, wird berechnet
     private int tTileSize;
 
     // Rand außerhalbt
@@ -44,7 +44,7 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
     private Paint tPaint = new Paint();
 
     // Schwierigkeit
-    int difficulity;
+    int difficulty;
 
     // Für SurfaceView
     SurfaceHolder surfaceHolder;
@@ -59,7 +59,7 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
         // Zweidimensionales Array mit der Anzahl der X und X Fliesen
         tTileGrid = new int[Constants.XTILE_COUNT][Constants.YTILE_COUNT];
         // Schwierigkeit aus Activity
-        this.difficulity = this.activity.getSelectedDifficulty();
+        this.difficulty = this.activity.getSelectedDifficulty();
         surfaceHolder = getHolder();
 
     }
@@ -112,7 +112,7 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
             }
             surfaceHolder.unlockCanvasAndPost(canvas);
             try {
-                Thread.sleep(difficulity);
+                Thread.sleep(difficulty);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -182,7 +182,7 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
 
     // Initialisiert die Schlange und die Beere
     private void initSnakeAndBerry() {
-        this.snake = new Snake(3, gettTileGrid());
+        this.snake = new Snake(3, gettTileGrid(), true);
         this.strawberry = new Strawberry(gettTileGrid());
     }
 

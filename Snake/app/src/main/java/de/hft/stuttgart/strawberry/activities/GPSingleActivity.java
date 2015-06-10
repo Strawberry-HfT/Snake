@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.common.Movement;
 import de.hft.stuttgart.strawberry.controllers.SnakeGestureListener;
 import de.hft.stuttgart.strawberry.controllers.SnakeSensorEventListener;
@@ -56,7 +57,7 @@ public class GPSingleActivity extends Activity {
     private boolean lenkungSensor = false;
 
     // Musik
-    private boolean music = true;
+    private boolean music = false;
     private MediaPlayer mediaPlayer;
 
 
@@ -69,7 +70,7 @@ public class GPSingleActivity extends Activity {
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         // Schwierigkeitsgradabhängige Werte setzten
-        this.initDifficulty();
+        this.initMusicSpeedByLevel();
 
         // Initialisiert View
         this.testView = new GPSingleSurfaceView(this);
@@ -87,6 +88,7 @@ public class GPSingleActivity extends Activity {
 
         // Initialisiert Variable zur Lenkung
         this.direction = new Movement();
+        this.direction.setRight(true);
 
         // Entscheidet ob Gestensteuerung oder Rotationssensoren
         if(lenkungSensor) {
@@ -104,7 +106,7 @@ public class GPSingleActivity extends Activity {
     /*
     Initialisiert die Werte, die von der Schwierigkeitsauswahl abhängen
      */
-    private void initDifficulty() {
+    private void initMusicSpeedByLevel() {
         if (music) {
             mediaPlayer = new MediaPlayer();
         }
@@ -118,26 +120,25 @@ public class GPSingleActivity extends Activity {
         }
 
         switch (difficulty) {
-            case EASY:
-                selectedDifficulty = 300;
+            case Constants.SPEED_EASY:
+                selectedDifficulty = Constants.SPEED_EASY;
                 if (music) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audioeasy);
                 }
                 break;
-            case MEDIUM:
-                selectedDifficulty = 180;
+            case Constants.SPEED_MEDIUM:
+                selectedDifficulty = Constants.SPEED_MEDIUM;
                 if (music) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
                 }
                 break;
-            case HARD:
-                selectedDifficulty = 80;
+            case Constants.SPEED_HARD:
+                selectedDifficulty = Constants.SPEED_HARD;
                 if (music) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audiohard);
                 }
                 break;
             default:
-                selectedDifficulty = 300;
                 if (music) {
                     mediaPlayer = MediaPlayer.create(this, R.raw.audiomedium);
                 }
@@ -156,14 +157,18 @@ public class GPSingleActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mediaPlayer.stop();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
     }
 
     // Überschreiben aus Superklasse, zum stoppen der Spielmusik
     @Override
     protected void onPause() {
         super.onPause();
-        mediaPlayer.stop();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
         this.testView.pause();
     }
 

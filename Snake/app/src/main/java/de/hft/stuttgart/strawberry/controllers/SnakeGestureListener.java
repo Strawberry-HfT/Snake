@@ -16,7 +16,7 @@ public class SnakeGestureListener implements GestureDetector.OnGestureListener {
 
     public SnakeGestureListener(Movement direction){
         this.direction = direction;
-        this.direction.setRight(true);
+//        this.direction.setRight(true);
     }
 
     @Override

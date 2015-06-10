@@ -27,23 +27,32 @@ public class Snake {
     // Schwierigkeit des Spiels
     private int level;
 
+    private boolean firstPlayer = false;
+
     // Konstruktor
-    public Snake(int dots, int [][]playingField){
+    public Snake(int dots, int [][]playingField, boolean isfirstPlayer){
         this.dots = dots;
         this.playingField = playingField;
+        firstPlayer = isfirstPlayer;
 
         initStartPositions(this.dots);
     }
 
     private void initStartPositions(int dots){
-        // Berechnet koordinaten auf dem Spielfeld für dahinterligende Punkte
+        // Berechnet Startposition auf dem Spielfeld für dahinter liegende Punkte
         for(int i = 0; i < dots; i++){
-            // Startposition
             Point point = new Point();
-            point.x = 5;
-            point.y = 10;
-            point.x -= i;
-            position.add(point);
+            if (firstPlayer) {
+                point.x = 5;
+                point.y = 10;
+                point.x -= i;
+                position.add(point);
+            } else {
+                point.x = 29;
+                point.y = 10;
+                point.x += i;
+                position.add(point);
+            }
         }
     }
 

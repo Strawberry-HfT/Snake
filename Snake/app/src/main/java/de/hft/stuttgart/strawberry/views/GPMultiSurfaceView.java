@@ -141,7 +141,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     // Wird von der Activity aufgerufen, wenn das Spiel gestartet wird. Startet den Thread
     public void resume(){
         Log.d(TAG, "resume()");
-        activity.sendPosition();
+//        activity.sendPosition();
         isRunning = true;
         thread = new Thread(this);
         thread.start();
@@ -192,7 +192,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 
     // Initialisiert die Schlange und die Beere
     private void initSnakeAndBerry() {
-        this.snake = new Snake(3, gettTileGrid());
+        this.snake = new Snake(3, gettTileGrid(), activity.isFirstPlayer());
         this.strawberry = new Strawberry(gettTileGrid());
     }
 
