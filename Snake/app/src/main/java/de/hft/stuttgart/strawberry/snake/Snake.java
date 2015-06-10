@@ -109,12 +109,23 @@ public class Snake {
         }
 }
 
-    public void checkCollisionBerry(Strawberry berry){
+    public void checkCollisionBerryFirstPlayer(Strawberry berry){
         Point berryPosition = berry.getBerryPosition();
         if(position.get(0).x == berryPosition.x && position.get(0).y == berryPosition.y){
             position.add(new Point());
             berry.createBerryPosition();
         }
+    }
+
+    public boolean checkCollisionBerrySecondPlayer(Strawberry berry){
+        boolean hit = false;
+
+        Point berryPosition = berry.getBerryPosition();
+        if(position.get(0).x == berryPosition.x && position.get(0).y == berryPosition.y){
+            position.add(new Point());
+            hit = true;
+        }
+        return hit;
     }
 
     public boolean checkCollisionSnake(){

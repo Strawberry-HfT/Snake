@@ -17,6 +17,8 @@ public class Constants {
     public static final int LEVEL_SPEED = 7;
     public static final int NOTIFIER_SELECTED = 8;
     public static final int NOTIFIER_START_GAME = 9;
+    public static final int NOTIFIER_BERRY_HIT = 10;
+    public static final int NOTIFIER_FIRST_BERRY = 11;
 
 
 

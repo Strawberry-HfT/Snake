@@ -18,7 +18,6 @@ public class Strawberry {
     public Strawberry(int [][]playingField){
         this.playingField = playingField;
         this.berryPosition = new Point();
-        createBerryPosition();
     }
 
     public void createBerryPosition(){
@@ -36,11 +35,16 @@ public class Strawberry {
         }
     }
 
+    // Zeichnet Spiel beim ersten Player
     public void drawBerry(){
         this.playingField[berryPosition.x][berryPosition.y] = 1;
     }
 
     public Point getBerryPosition() {
         return berryPosition;
+    }
+
+    public void setBerryPosition(Point berryPosition) {
+        this.berryPosition = berryPosition;
     }
 }

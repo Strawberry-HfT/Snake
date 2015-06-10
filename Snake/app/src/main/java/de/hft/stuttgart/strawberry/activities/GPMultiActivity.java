@@ -29,8 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import de.hft.stuttgart.strawberry.bluetoothservice.BluetoothService;
@@ -461,7 +459,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         mBtService.connect(device, secure);
     }
 
-    private void sendNotification(int id, String message) {
+    public void sendNotification(int id, String message) {
 
         // Sagt zu welcher Constanten es gesendet und empfangen werden soll
         this.locator = id;
@@ -613,7 +611,20 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                             case Constants.NOTIFIER_START_GAME:
                                 startGame(Long.valueOf(wert));
                                 break;
-                        }
+                            // Sendet Beere an 2 Player
+                            case Constants.NOTIFIER_FIRST_BERRY:
+                                String[] split1 = wert.split(":");
+                                Point point = new Point(Integer.parseInt(split1[0]),Integer.parseInt(split1[1]));
+                                multiView.getStrawberry().setBerryPosition(point);
+                                multiView.setFirstCall(false);
+                                Toast.makeText(GPMultiActivity.this,"Senden der ersten Beere angekommen",Toast.LENGTH_SHORT).show();
+                                break;
+                            case Constants.NOTIFIER_BERRY_HIT:
+                                String[] split2 = wert.split(":");
+                                Point point2 = new Point(Integer.parseInt(split2[0]),Integer.parseInt(split2[1]));
+                                multiView.getStrawberry().setBerryPosition(point2);
+                                Toast.makeText(GPMultiActivity.this, "Beere getroffen", Toast.LENGTH_SHORT).show();
+                         }
                     }
                     break;
                 // Wenn der Name des anderen Geraetes kommt
@@ -752,8 +763,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                     if(isFirstPlayer()) {
 
                         // Aktuelle Zeit + 5 Sekunden
-                        startTime = System.currentTimeMillis()+5000;
-                        notifyDudeGameStarted(startTime);
+//                        startTime = System.currentTimeMillis()+5000;
+                        notifyDudeGameStarted(5000);
                         startGame(startTime);
                     }
                 }

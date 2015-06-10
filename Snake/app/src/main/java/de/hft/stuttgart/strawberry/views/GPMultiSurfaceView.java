@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,8 +23,8 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     // TAG f�r den Logger
     private static final String TAG = GPMultiSurfaceView.class.getSimpleName();
 
-    // StartZeit
-    long startTime;
+    // FirstCall
+    boolean firstCall = true;
 
     // Activity
     GPMultiActivity activity;
@@ -62,9 +63,6 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     public GPMultiSurfaceView(Context context, long startTime){
         super(context);
 
-        // Übergibt die Uhrzeit, an der das Spiel gestartet werden soll
-        this.startTime = startTime;
-
         // Holt Activity in die View
         activity = (GPMultiActivity)context;
 
@@ -89,14 +87,30 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
             }
             Canvas canvas = surfaceHolder.lockCanvas();
 
-            // Schleife hält das Spiel fest
-            while(System.currentTimeMillis() < startTime){
-                Log.d(TAG,"Warte bis zur Startzeit");
+            if(activity.isFirstPlayer() && firstCall){
+                firstCall = false;
+                strawberry.createBerryPosition();
+                Point berryPosition = strawberry.getBerryPosition();
+                StringBuffer sB = new StringBuffer();
+                sB.append(berryPosition.x+":");
+                sB.append(berryPosition.y);
+                activity.sendNotification(Constants.NOTIFIER_FIRST_BERRY, sB.toString());
             }
 
-            strawberry.drawBerry();
+            if(!firstCall){
+                strawberry.drawBerry();
+            }
+
+
+            if(snake.checkCollisionBerrySecondPlayer(strawberry)){
+                Point berryPosition = strawberry.getBerryPosition();
+                StringBuffer sB = new StringBuffer();
+                sB.append(berryPosition.x+":");
+                sB.append(berryPosition.y);
+                activity.sendNotification(Constants.NOTIFIER_BERRY_HIT,sB.toString());
+            }
+
             snake.moveSnake(activity.getDirection());
-            snake.checkCollisionBerry(strawberry);
             if (snake.checkCollisionSnake()) {
                 activity.finish();
             }
@@ -160,6 +174,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 //        activity.sendPosition();
         isRunning = true;
         thread = new Thread(this);
+//        thread.setPriority(Thread.MAX_PRIORITY);
         thread.start();
     }
 
@@ -220,5 +235,13 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 
     public Snake getSnake() {
         return snake;
+    }
+
+    public Strawberry getStrawberry() {
+        return strawberry;
+    }
+
+    public void setFirstCall(boolean firstCall) {
+        this.firstCall = firstCall;
     }
 }
