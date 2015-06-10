@@ -87,23 +87,34 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
             }
             Canvas canvas = surfaceHolder.lockCanvas();
 
+            // Zeichnet die Beere, aber nicht beim ersten Durchgang
+            if(!firstCall){
+                strawberry.drawBerry();
+            }
+
+            // Beim ersten Durchlauf erzeugt Player 1 die Beere und sendet sie an 2.Player
             if(activity.isFirstPlayer() && firstCall){
                 firstCall = false;
+                // Erstellt die Positoin der ersten Beere
                 strawberry.createBerryPosition();
+                // Zeichne die eigene Beere, beim ersten Durchgang
+                strawberry.drawBerry();
+                // Holt den Wert der ersten Beere
                 Point berryPosition = strawberry.getBerryPosition();
+                // Sendet die Beere
                 StringBuffer sB = new StringBuffer();
                 sB.append(berryPosition.x+":");
                 sB.append(berryPosition.y);
                 activity.sendNotification(Constants.NOTIFIER_FIRST_BERRY, sB.toString());
             }
 
-            if(!firstCall){
-                strawberry.drawBerry();
-            }
-
-
+            // Bei einer Collision wird die Beere neu erzeugt und an anderen Spieler gesendet
             if(snake.checkCollisionBerrySecondPlayer(strawberry)){
+                // Aktualisiert die Positon der Beere
+                strawberry.createBerryPosition();
+                // Holt den Point
                 Point berryPosition = strawberry.getBerryPosition();
+                // Senden
                 StringBuffer sB = new StringBuffer();
                 sB.append(berryPosition.x+":");
                 sB.append(berryPosition.y);

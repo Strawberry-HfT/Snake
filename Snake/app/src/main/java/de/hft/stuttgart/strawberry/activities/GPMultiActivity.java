@@ -588,7 +588,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                     String wert = split[1];
 
                     // hier verarbeitet der dude die Benachrichtigungen
-                    if(!isFirstPlayer()) {
                         switch (locator){
                             case Constants.LEVEL_SPEED:
                                 if (wert.equals(String.valueOf(Constants.SPEED_EASY))) {
@@ -611,20 +610,27 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                             case Constants.NOTIFIER_START_GAME:
                                 startGame(Long.valueOf(wert));
                                 break;
-                            // Sendet Beere an 2 Player
+
+                            // 2 PLAYER
                             case Constants.NOTIFIER_FIRST_BERRY:
                                 String[] split1 = wert.split(":");
                                 Point point = new Point(Integer.parseInt(split1[0]),Integer.parseInt(split1[1]));
+                                // Sendet die Position der ersten Beere
                                 multiView.getStrawberry().setBerryPosition(point);
+                                // Zeichnet die erste Beere beim 2. Spieler
+                                multiView.getStrawberry().drawBerry();
+                                // Firstcall Ändern
                                 multiView.setFirstCall(false);
                                 Toast.makeText(GPMultiActivity.this,"Senden der ersten Beere angekommen",Toast.LENGTH_SHORT).show();
                                 break;
+
+                            // BEIDE
                             case Constants.NOTIFIER_BERRY_HIT:
                                 String[] split2 = wert.split(":");
                                 Point point2 = new Point(Integer.parseInt(split2[0]),Integer.parseInt(split2[1]));
                                 multiView.getStrawberry().setBerryPosition(point2);
                                 Toast.makeText(GPMultiActivity.this, "Beere getroffen", Toast.LENGTH_SHORT).show();
-                         }
+
                     }
                     break;
                 // Wenn der Name des anderen Geraetes kommt
