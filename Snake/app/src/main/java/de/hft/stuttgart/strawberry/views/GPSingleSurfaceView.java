@@ -50,6 +50,7 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
     SurfaceHolder surfaceHolder;
     Thread thread = null;
     boolean isRunning = false;
+    boolean firstCall = true;
 
     // Constructor
     public GPSingleSurfaceView(Context context){
@@ -75,12 +76,16 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
             }
             Canvas canvas = surfaceHolder.lockCanvas();
 
+            if (firstCall) {
+                strawberry.createBerryPosition();
+            }
             strawberry.drawBerry();
             snake.moveSnake(activity.getDirection());
             snake.checkCollisionBerryFirstPlayer(strawberry);
             if (snake.checkCollisionSnake()) {
                 activity.finish();
         }
+            firstCall = false;
 
             for (int x = 0; x < Constants.XTILE_COUNT; x += 1) {
                 // Solange y kleiner als Anzahl der Fliesen vertikal

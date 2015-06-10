@@ -28,12 +28,9 @@ public class GPSingleActivity extends Activity {
     // TAG für den Logger
     private static final String TAG = GPSingleActivity.class.getSimpleName();
 
-    // Schwierigkeitsgrade
-    private static final int EASY = 1;
-    private static final int MEDIUM = 2;
-    private static final int HARD = 3;
     // Hält übergebene Schwierigkeit aus Fragment
     int difficulty;
+
     // gesetze Spielgeschwindigkeit
     private int selectedDifficulty;
 
@@ -115,7 +112,7 @@ public class GPSingleActivity extends Activity {
             difficulty = extras.getInt("difficulty");
             Log.d(TAG, "Selected Difficulty: " + difficulty);
         } else {
-            difficulty = MEDIUM;
+            difficulty = Constants.SPEED_MEDIUM;
             Log.d(TAG, "No Difficulty Selected");
         }
 
