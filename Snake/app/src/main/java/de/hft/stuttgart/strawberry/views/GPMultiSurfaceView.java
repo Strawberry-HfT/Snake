@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+
 import de.hft.stuttgart.strawberry.activities.GPMultiActivity;
 import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.common.Strawberry;
@@ -31,7 +33,8 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 
     // Bild f�r die Beere
     private Bitmap berryBitmap;
-    private Bitmap snakeBitmap;
+    private Bitmap snakeBitmapFirst;
+    private Bitmap snakeBitmapSecond;
     private Bitmap backgroundBitmap;
 
     // Spielobjekte
@@ -122,6 +125,17 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
             }
 
             snake.moveSnake(activity.getDirection());
+
+            // Sende Schlange an den Anderen Player
+            StringBuffer sB2 = new StringBuffer();
+            ArrayList<Point> position = this.snake.getPositionFirst();
+            for (int i = 0; i < position.size(); i++){
+                sB2.append(position.get(i).x+":");
+                sB2.append(position.get(i).y+",");
+            }
+            activity.sendNotification(Constants.NOTIFIER_SNAKE,sB2.toString());
+
+
             if (snake.checkCollisionSnake()) {
                 activity.finish();
             }
@@ -137,13 +151,21 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                                 tPaint);
                     }if( tTileGrid[x][y] == 2){
                         // Wenn 2 dann Schlangenelement
-                        canvas.drawBitmap(this.snakeBitmap,
+                        canvas.drawBitmap(this.snakeBitmapFirst,
                                 tXOffset + x * tTileSize,
                                 tYOffset + y * tTileSize,
                                 tPaint);
                         // Setzt Wert direkt nach dem Zeichnen wieder auf 0
                         tTileGrid[x][y] = 0;
-                    } if (tTileGrid[x][y] == 1){
+                    } if( tTileGrid[x][y] == 3){
+                        // Wenn 2 dann Schlangenelement
+                        canvas.drawBitmap(this.snakeBitmapSecond,
+                                tXOffset + x * tTileSize,
+                                tYOffset + y * tTileSize,
+                                tPaint);
+                        // Setzt Wert direkt nach dem Zeichnen wieder auf 0
+                        tTileGrid[x][y] = 0;
+                    }if (tTileGrid[x][y] == 1){
                         // Wenn 1 dann Beere
                         canvas.drawBitmap(this.berryBitmap,
                                 tXOffset + x * tTileSize,
@@ -185,7 +207,6 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 //        activity.sendPosition();
         isRunning = true;
         thread = new Thread(this);
-//        thread.setPriority(Thread.MAX_PRIORITY);
         thread.start();
     }
 
@@ -220,9 +241,13 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 
     // Initialisiert die Bitmaps zum Zeichen
     private void initBitmaps() {
-        // Schlange
-        this.snakeBitmap =Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
-        snakeBitmap.eraseColor(Color.BLUE);
+        // Schlange 1
+        this.snakeBitmapFirst =Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
+        snakeBitmapFirst.eraseColor(Color.BLUE);
+
+        // Schlange 2
+        this.snakeBitmapSecond =Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
+        snakeBitmapSecond.eraseColor(Color.YELLOW);
 
         // Beere
         this.berryBitmap = Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);

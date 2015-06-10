@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import de.hft.stuttgart.strawberry.common.Constants;
 import de.hft.stuttgart.strawberry.common.Movement;
 import de.hft.stuttgart.strawberry.common.Strawberry;
-import de.hft.stuttgart.strawberry.views.GPSingleSurfaceView;
 
 /**
  * Created by Tommy_2 on 26.03.2015.
@@ -19,7 +18,10 @@ public class Snake {
     private int [][] playingField;
 
     // Hält die Point-Positionen der Schlange auf dem Spielfeld
-    private ArrayList<Point> position = new ArrayList<Point>();
+    private ArrayList<Point> positionFirst = new ArrayList<Point>();
+
+    // Hält die Punkte der zweiten Schlange
+    private ArrayList<Point> positionSecond = new ArrayList<Point>();
 
     // Anzahl der Punkte
     private int dots;
@@ -46,12 +48,12 @@ public class Snake {
                 point.x = 5;
                 point.y = 10;
                 point.x -= i;
-                position.add(point);
+                positionFirst.add(point);
             } else {
                 point.x = 29;
                 point.y = 10;
                 point.x += i;
-                position.add(point);
+                positionFirst.add(point);
             }
         }
     }
@@ -63,56 +65,60 @@ public class Snake {
          Durchläuft die Positionen Rückwärts (Vom letzten zum ersten Wert)
          Dise Schleife zieht alle Dots hinter dem Kopf nach
           */
-        for(int i = this.position.size()-1; i > 0; i--){
-            this.position.get(i).x = this.position.get(i-1).x;
-            this.position.get(i).y = this.position.get(i-1).y;
+        for(int i = this.positionFirst.size()-1; i > 0; i--){
+            this.positionFirst.get(i).x = this.positionFirst.get(i-1).x;
+            this.positionFirst.get(i).y = this.positionFirst.get(i-1).y;
         }
 
         // Setzt die neuen Koordinaten für die Bewegung
         // Nach Oben
         if (direction.isUp()) {
-            if(position.get(0).y <= 0){
-                position.get(0).y = Constants.YTILE_COUNT-1;
+            if(positionFirst.get(0).y <= 0){
+                positionFirst.get(0).y = Constants.YTILE_COUNT-1;
             } else {
-                this.position.get(0).y -= 1;
+                this.positionFirst.get(0).y -= 1;
             }
         }
         // Nach Unten
         if (direction.isDown()) {
-            if(position.get(0).y >= Constants.YTILE_COUNT-1){
-                position.get(0).y = 0;
+            if(positionFirst.get(0).y >= Constants.YTILE_COUNT-1){
+                positionFirst.get(0).y = 0;
             } else {
-                this.position.get(0).y += 1;
+                this.positionFirst.get(0).y += 1;
             }
         }
         // Nach Rechts
         if (direction.isRight()) {
-            if (position.get(0).x >= Constants.XTILE_COUNT-1) {
-                position.get(0).x = 0;
+            if (positionFirst.get(0).x >= Constants.XTILE_COUNT-1) {
+                positionFirst.get(0).x = 0;
             } else {
-                this.position.get(0).x += 1;
+                this.positionFirst.get(0).x += 1;
             }
         }
 
         // Nach Links
         if (direction.isLeft()) {
-            if (position.get(0).x <= 0) {
-                position.get(0).x = Constants.XTILE_COUNT-1;
+            if (positionFirst.get(0).x <= 0) {
+                positionFirst.get(0).x = Constants.XTILE_COUNT-1;
             } else {
-                this.position.get(0).x -= 1;
+                this.positionFirst.get(0).x -= 1;
             }
         }
 
         // Markiert die Koordinaten auf dem Spielfeld
-        for(int i = 0; i<position.size();i++){
-            playingField[position.get(i).x][position.get(i).y]= 2;
+        for(int i = 0; i< positionFirst.size();i++){
+            playingField[positionFirst.get(i).x][positionFirst.get(i).y]= 2;
+        }
+
+        for(int i = 0; i< positionSecond.size();i++){
+            playingField[positionSecond.get(i).x][positionSecond.get(i).y]= 3;
         }
 }
 
     public void checkCollisionBerryFirstPlayer(Strawberry berry){
         Point berryPosition = berry.getBerryPosition();
-        if(position.get(0).x == berryPosition.x && position.get(0).y == berryPosition.y){
-            position.add(new Point());
+        if(positionFirst.get(0).x == berryPosition.x && positionFirst.get(0).y == berryPosition.y){
+            positionFirst.add(new Point());
             berry.createBerryPosition();
         }
     }
@@ -121,8 +127,8 @@ public class Snake {
         boolean hit = false;
 
         Point berryPosition = berry.getBerryPosition();
-        if(position.get(0).x == berryPosition.x && position.get(0).y == berryPosition.y){
-            position.add(new Point());
+        if(positionFirst.get(0).x == berryPosition.x && positionFirst.get(0).y == berryPosition.y){
+            positionFirst.add(new Point());
             hit = true;
         }
         return hit;
@@ -130,8 +136,8 @@ public class Snake {
 
     public boolean checkCollisionSnake(){
         boolean collison = false;
-        for(int i = 1; i< position.size();i++){
-            if(position.get(0).x == position.get(i).x && this.position.get(0).y == position.get(i).y){
+        for(int i = 1; i< positionFirst.size();i++){
+            if(positionFirst.get(0).x == positionFirst.get(i).x && this.positionFirst.get(0).y == positionFirst.get(i).y){
                 collison = true;
             }
         }
@@ -139,12 +145,12 @@ public class Snake {
     }
 
     // Setter und Getter
-    public ArrayList<Point> getPosition() {
-        return position;
+    public ArrayList<Point> getPositionFirst() {
+        return positionFirst;
     }
 
-    public void setPosition(ArrayList<Point> position) {
-        this.position = position;
+    public void setPositionFirst(ArrayList<Point> positionFirst) {
+        this.positionFirst = positionFirst;
     }
 
     public int getLevel() {
@@ -153,5 +159,9 @@ public class Snake {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public void setPositionSecond(ArrayList<Point> positionSecond) {
+        this.positionSecond = positionSecond;
     }
 }

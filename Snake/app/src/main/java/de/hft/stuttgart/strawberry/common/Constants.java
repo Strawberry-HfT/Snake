@@ -19,6 +19,7 @@ public class Constants {
     public static final int NOTIFIER_START_GAME = 9;
     public static final int NOTIFIER_BERRY_HIT = 10;
     public static final int NOTIFIER_FIRST_BERRY = 11;
+    public static final int NOTIFIER_SNAKE= 12;
 
 
 

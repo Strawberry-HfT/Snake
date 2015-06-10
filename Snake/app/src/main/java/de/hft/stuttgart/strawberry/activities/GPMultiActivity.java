@@ -400,7 +400,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
             // aktuelle Position der Schlange
             // TODO schauen ob die Position immernoch geholt wird
-            ArrayList<Point> positions = multiView.getSnake().getPosition();
+            ArrayList<Point> positions = multiView.getSnake().getPositionFirst();
 
 //            StringBuffer buffer = new StringBuffer();
 
@@ -630,8 +630,20 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                                 Point point2 = new Point(Integer.parseInt(split2[0]),Integer.parseInt(split2[1]));
                                 multiView.getStrawberry().setBerryPosition(point2);
                                 Toast.makeText(GPMultiActivity.this, "Beere getroffen", Toast.LENGTH_SHORT).show();
+                                break;
 
-                    }
+                            // Beide Schlangenübertragung
+                            case Constants.NOTIFIER_SNAKE:
+                                ArrayList<Point> snakeTwo = new ArrayList<Point>();
+                                String[] split3 = wert.split(",");
+                                for(String points : split3){
+                                    String[] split4 = points.split(":");
+                                    snakeTwo.add(new Point(Integer.valueOf(split4[0]),Integer.valueOf(split4[1])));
+                                }
+
+                                multiView.getSnake().setPositionSecond(snakeTwo);
+                                break;
+                        }
                     break;
                 // Wenn der Name des anderen Geraetes kommt
                 case Constants.MESSAGE_DEVICE_NAME:
