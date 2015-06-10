@@ -22,6 +22,9 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     // TAG f�r den Logger
     private static final String TAG = GPMultiSurfaceView.class.getSimpleName();
 
+    // StartZeit
+    long startTime;
+
     // Activity
     GPMultiActivity activity;
 
@@ -34,34 +37,40 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     private Snake snake;
     private Strawberry strawberry;
 
-    // Gr��e der Flie�e, wird berechnet
+    // Groesse der Fliese, wird berechnet
     private int tTileSize;
 
-    // Rand au�erhalbt
+    // Rand auserhalbt
     private int tXOffset;
     private int tYOffset;
 
-    // H�lt die Positon des Bitmaps
+    // Haelt die Positon des Bitmaps
     private int[][] tTileGrid;
 
-    // Paint f�r die Fliesen
+    // Paint fuer die Fliesen
     private Paint tPaint = new Paint();
 
     // Schwierigkeit
     int difficulty;
 
-    // F�r SurfaceView
+    // Fuer SurfaceView
     SurfaceHolder surfaceHolder;
     Thread thread = null;
     boolean isRunning = false;
 
     // Constructor
-    public GPMultiSurfaceView(Context context){
+    public GPMultiSurfaceView(Context context, long startTime){
         super(context);
 
+        // Übergibt die Uhrzeit, an der das Spiel gestartet werden soll
+        this.startTime = startTime;
+
+        // Holt Activity in die View
         activity = (GPMultiActivity)context;
+
         // Zweidimensionales Array mit der Anzahl der X und X Fliesen
         tTileGrid = new int[Constants.XTILE_COUNT][Constants.YTILE_COUNT];
+
         // Schwierigkeit aus Activity
         this.difficulty = this.activity.getLevelSpeed();
         surfaceHolder = getHolder();
@@ -79,6 +88,11 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                 continue;
             }
             Canvas canvas = surfaceHolder.lockCanvas();
+
+            // Schleife hält das Spiel fest
+            while(System.currentTimeMillis() < startTime){
+                Log.d(TAG,"Warte bis zur Startzeit");
+            }
 
             strawberry.drawBerry();
             snake.moveSnake(activity.getDirection());
@@ -115,6 +129,8 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                     }
                 }
             }
+
+
             surfaceHolder.unlockCanvasAndPost(canvas);
             try {
                 Thread.sleep(difficulty);
@@ -172,6 +188,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
         initBitmaps();
         initSnakeAndBerry();
 
+        // Startet das Zeichnen
         this.resume();
     }
 

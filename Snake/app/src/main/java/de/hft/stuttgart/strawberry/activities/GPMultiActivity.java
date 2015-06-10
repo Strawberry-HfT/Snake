@@ -29,6 +29,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import de.hft.stuttgart.strawberry.bluetoothservice.BluetoothService;
@@ -81,9 +83,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     // gibt aktive Verbindung an
     private boolean activeConnection = false;
 
-    // Anfangslänge der Schlange
-//    private static final int INIT_SNAKE_LENGTH = 3;
-
     // View in Activity
     private GPMultiSurfaceView multiView;
 
@@ -108,9 +107,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private boolean music = false;
     private MediaPlayer mediaPlayer;
 
-    // gesetzte Schwierigkeit
-//    private int selectedDifficulty;
-
     // gesetze Spielgeschwindigkeit
     private int levelSpeed;
 
@@ -123,12 +119,10 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     // Wert fuer gewaehlen Schwierigkeitsgrad
     private boolean levelSelected = false;
 
-    // Wert fuer laufendes Spiel
-    private boolean runningGame = false;
+    private int locator = 2;
 
     // empfangene Position als byte[]
     private byte[] recievedPosByteArray = null;
-
 
 
     @Override
@@ -172,7 +166,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 // Initialize the buffer for outgoing messages
                 mOutStringBuffer = new StringBuffer("");
             }
-
             // Sichtbarkeit ueberpruefen
             if (!deviceSelected) {
 //                ensureDiscoverable();//TODO zu testzwecken auskommentiert
@@ -212,9 +205,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             mOutStringBuffer = null;
         }
 
-        if(isRunningGame()) {
-            // TODO PauseFragment
-        }
     }
 
     @Override
@@ -275,10 +265,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         // fuer Spieler 1
         Toast.makeText(this, lvlMsg, Toast.LENGTH_SHORT).show();
 
-//        // fuer Spieler 2
-//        Log.d(TAG, "notifyDudeAboutLevel..");
-//        sendNotification(lvlMsg.toString());
-
         Log.d(TAG, "selected: " + lvlMsg);
 
         // Buffer zuruecksetzen
@@ -301,7 +287,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
         this.initMusicSpeedByLevel();
 
-        this.multiView = new GPMultiSurfaceView(this);
+        this.multiView = new GPMultiSurfaceView(this, startTime);
 
         // Vollbildmodus der View, ab Android 4.4
         multiView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -343,8 +329,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 mediaPlayer.setLooping(true);
                 mediaPlayer.start();
             }
-
-            setRunningGame(true);
         } else {
             this.direction = new Movement();
             this.direction.setLeft(true);
@@ -368,8 +352,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 mediaPlayer.setLooping(true);
                 mediaPlayer.start();
             }
-
-            setRunningGame(true);
         }
     }
 
@@ -416,7 +398,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         // Pruefung, ob eine aktive Verbindung besteht
         if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
             Toast.makeText(this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
-        } else if (isRunningGame()) {
+        }
 
             // aktuelle Position der Schlange
             // TODO schauen ob die Position immernoch geholt wird
@@ -465,7 +447,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             mBtService.write(bytePositions);
 //            buffer.setLength(0);
         }
-    }
 
     /*
     Stellt die Verbindung zum ausgewaehlten Geraet her
@@ -480,10 +461,10 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         mBtService.connect(device, secure);
     }
 
-    /*
-    Versendet Schluesselwoerter zur Benachrichtigung an den dude
-     */
-    private void sendNotification(String message) {
+    private void sendNotification(int id, String message) {
+
+        // Sagt zu welcher Constanten es gesendet und empfangen werden soll
+        this.locator = id;
 
         // Pruefung, ob eine aktive Verbindung besteht
         if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
@@ -492,41 +473,14 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         }
 
         // Benachrichtigung senden
-        if (message.length() > 0) {
+        if (message.length() > 0 && id !=0) {
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append(id+";");
+            stringBuffer.append(message);
 
-            // Benachrichtigung konvertieren und versenden
-            byte[] send = message.getBytes();
-            mBtService.write(send);
-
-            // string buffer zuruecksetzen
-            mOutStringBuffer.setLength(0);
-        }
-    }
-
-    private void sendNotification(long message) {
-
-        // Pruefung, ob eine aktive Verbindung besteht
-        if (mBtService.getState() != BluetoothService.STATE_CONNECTED) {
-            Toast.makeText(this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Benachrichtigung senden
-        if (message > 0) {
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(baos);
-            try {
-                dos.writeLong(Constants.STAMP_IDEX);
-                dos.writeLong(message);
-                dos.close();
-            } catch (IOException e) {
-                Log.d(TAG, "Long in byte[] konvertiert");
-            }
-
-            byte[] longBytes = baos.toByteArray();
-
-            mBtService.write(longBytes);
+            String fertig = stringBuffer.toString();
+            byte[]byteFertig = fertig.getBytes();
+            mBtService.write(byteFertig);
 
             // string buffer zuruecksetzen
             mOutStringBuffer.setLength(0);
@@ -590,10 +544,12 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
     /*
     Handler der Benachrichtigungen an das UI sendet und die Positionen empfaengt
+    Erhaelt Nachrichten (Empfangen)
      */
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+
             switch (msg.what) {
                 // Wenn sich der BT Verbindungsstatus aendert
                 case Constants.MESSAGE_STATE_CHANGE:
@@ -620,47 +576,44 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                             break;
                     }
                     break;
-//                case Constants.MESSAGE_WRITE:
-//                    byte[] writeBuf = (byte[]) msg.obj;
-//                    // construct a string from the buffer
-//                    String writeMessage = new String(writeBuf);
-//
-//                    break;
+
                 // wenn eine Benachrichtigung kommt
                 case Constants.MESSAGE_READ:
 
                     // byte[] to string
                     byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    StringBuffer levelText;
+
+                    String[] split = readMessage.split(";");
+
+                    int locator = Integer.valueOf(split[0]);
+                    String wert = split[1];
 
                     // hier verarbeitet der dude die Benachrichtigungen
                     if(!isFirstPlayer()) {
-                        levelText = new StringBuffer();
-                        levelText.append(getString(R.string.dude_chose, mConnectedDeviceName));
-
-                        if(readMessage.equals(Constants.NOTIFIER_SELECTED)) {
-                            setLevelSelected(true);
-                        } else if (readMessage.contains(Constants.NOTIFIER_STARTED)) {
-                            setRunningGame(true);
-                            startGame(0);
-                        } else if (readMessage.equals(String.valueOf(Constants.SPEED_EASY))) {
-                            levelText.append(getString(R.string.easy));
-                            levelSpeed = Constants.SPEED_EASY;
-                            setLevelSelected(true);
-                            Toast.makeText(GPMultiActivity.this, levelText, Toast.LENGTH_SHORT).show();
-                        } else if (readMessage.equals(String.valueOf(Constants.SPEED_MEDIUM))) {
-                            levelText.append(getString(R.string.medium));
-                            levelSpeed = Constants.SPEED_MEDIUM;
-                            setLevelSelected(true);
-                            Toast.makeText(GPMultiActivity.this, levelText, Toast.LENGTH_SHORT).show();
-                        } else if (readMessage.equals(String.valueOf(Constants.SPEED_HARD))) {
-                            levelText.append(getString(R.string.hard));
-                            levelSpeed = Constants.SPEED_HARD;
-                            setLevelSelected(true);
-                            Toast.makeText(GPMultiActivity.this, levelText, Toast.LENGTH_SHORT).show();
+                        switch (locator){
+                            case Constants.LEVEL_SPEED:
+                                if (wert.equals(String.valueOf(Constants.SPEED_EASY))) {
+                                    levelSpeed = Constants.SPEED_EASY;
+                                    setLevelSelected(true);
+                                    Toast.makeText(GPMultiActivity.this, "leicht", Toast.LENGTH_SHORT).show();
+                                } else if (wert.equals(String.valueOf(Constants.SPEED_MEDIUM))) {
+                                    levelSpeed = Constants.SPEED_MEDIUM;
+                                    setLevelSelected(true);
+                                    Toast.makeText(GPMultiActivity.this, "mittel", Toast.LENGTH_SHORT).show();
+                                } else if (wert.equals(String.valueOf(Constants.SPEED_HARD))) {
+                                    levelSpeed = Constants.SPEED_HARD;
+                                    setLevelSelected(true);
+                                    Toast.makeText(GPMultiActivity.this, "schwer", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case Constants.NOTIFIER_SELECTED:
+                                setLevelSelected(true);
+                                break;
+                            case Constants.NOTIFIER_START_GAME:
+                                startGame(Long.valueOf(wert));
+                                break;
                         }
-//                        long index = readBuf.
                     }
                     break;
                 // Wenn der Name des anderen Geraetes kommt
@@ -836,16 +789,14 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         Log.d(TAG, "notifyDudeLevelSelected()");
         String speed = String.valueOf(levelSpeed);
         if (isFirstPlayer()) {
-//            sendNotification(Constants.NOTIFIER_SELECTED);
-            sendNotification(speed);
+            sendNotification(Constants.LEVEL_SPEED, speed);
         }
     }
 
     private void notifyDudeGameStarted(long startTime) {
         Log.d(TAG, "notifyDudeGameStarted()");
         if (isFirstPlayer()) {
-            sendNotification(String.valueOf(startTime));
-            sendNotification(Constants.NOTIFIER_STARTED);
+            sendNotification(Constants.NOTIFIER_START_GAME, String.valueOf(startTime));
         }
     }
 
@@ -898,6 +849,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         return levelSelected;
     }
 
+    // Ändert den Buttontext
     public void setLevelSelected(boolean levelSelected) {
         this.levelSelected = levelSelected;
 
@@ -924,14 +876,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
         this.activeConnection = activeConnection;
     }
 
-    public boolean isRunningGame() {
-        return runningGame;
-    }
-
-    public void setRunningGame(boolean runningGame) {
-        this.runningGame = runningGame;
-    }
-
     public synchronized byte[] getRecievedPosByteArray() {
         return recievedPosByteArray;
     }
@@ -954,5 +898,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
     public Movement getDirection() {
         return direction;
+    }
+
+    public int getLocator() {
+        return locator;
     }
 }

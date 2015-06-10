@@ -15,14 +15,14 @@ public class Constants {
 
     public static final int POSITION_READ = 6;
     public static final int LEVEL_SPEED = 7;
+    public static final int NOTIFIER_SELECTED = 8;
+    public static final int NOTIFIER_START_GAME = 9;
 
-    public static final long STAMP_IDEX = 55;
 
 
     // Schluesselwoerter fuer den Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
-    public static final String NOTIFIER_SELECTED = "level_selected";
     public static final String NOTIFIER_STARTED = "game_started";
 
     // Tag fuer Fragment

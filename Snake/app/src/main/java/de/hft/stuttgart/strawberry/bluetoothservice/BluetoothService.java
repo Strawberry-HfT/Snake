@@ -596,6 +596,7 @@ public class BluetoothService {
 
             // Bytelaenge aus den Streams
             int bytes;
+            int locator;
 
             // Auf den InputStream horchen, so lange eine Verbindung besteht
             while (true) {
@@ -603,15 +604,9 @@ public class BluetoothService {
                     // Aus InputStream einlesen
                     bytes = mInputStream.read(buffer);
 
-                    // erhaltene Daten an das UI senden
-                    if (!multiActivity.isRunningGame()) {
-                        mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
-                                .sendToTarget();
-                    } else {
-                        multiActivity.setRecievedPosByteArray(buffer);
-                        mHandler.obtainMessage(Constants.POSITION_READ, bytes, -1, buffer)
-                                .sendToTarget();
-                    }
+                    // Schickt alle Nachrichten an Messsage read
+                    mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+
                 } catch (IOException e) {
                     Log.w(TAG, "devices disconnected");
                     connectionLost();
