@@ -110,17 +110,21 @@ public class Snake {
             playingField[positionFirst.get(i).x][positionFirst.get(i).y]= 2;
         }
 
+        // Markiert die Koordinaten der zweiten Schlange auf dem Spielfeld
         for(int i = 0; i< positionSecond.size();i++){
             playingField[positionSecond.get(i).x][positionSecond.get(i).y]= 3;
         }
 }
 
-    public void checkCollisionBerryFirstPlayer(Strawberry berry){
+    public boolean checkCollisionBerry(Strawberry berry){
+        boolean collision = false;
         Point berryPosition = berry.getBerryPosition();
         if(positionFirst.get(0).x == berryPosition.x && positionFirst.get(0).y == berryPosition.y){
             positionFirst.add(new Point());
             berry.createBerryPosition();
+            collision = true;
         }
+        return  collision;
     }
 
     public boolean checkCollisionBerrySecondPlayer(Strawberry berry){
@@ -134,7 +138,8 @@ public class Snake {
         return hit;
     }
 
-    public boolean checkCollisionSnake(){
+    // Prüft ob Schlange mit sich selbst kollidiert
+    public boolean checkCollisionWithOwnSnake(){
         boolean collison = false;
         for(int i = 1; i< positionFirst.size();i++){
             if(positionFirst.get(0).x == positionFirst.get(i).x && this.positionFirst.get(0).y == positionFirst.get(i).y){
@@ -142,6 +147,17 @@ public class Snake {
             }
         }
         return collison;
+    }
+
+    // Prüft ob die erste Schlange mit der zweiten kollidiert
+    public boolean checkCollisionWithSecondSnake(){
+        boolean collision = false;
+        for(int i = 0; i<positionSecond.size(); i++){
+            if(positionFirst.get(0).x == positionSecond.get(i).x && positionFirst.get(0).y == positionSecond.get(i).y){
+                collision = true;
+            }
+        }
+        return collision;
     }
 
     // Setter und Getter

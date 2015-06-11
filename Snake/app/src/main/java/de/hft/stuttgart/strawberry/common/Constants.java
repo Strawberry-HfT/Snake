@@ -18,15 +18,13 @@ public class Constants {
     public static final int NOTIFIER_SELECTED = 8;
     public static final int NOTIFIER_START_GAME = 9;
     public static final int NOTIFIER_BERRY_HIT = 10;
-    public static final int NOTIFIER_FIRST_BERRY = 11;
+    public static final int NOTIFIER_FIRST_BERRY = 13;
     public static final int NOTIFIER_SNAKE= 12;
-
-
+    public static final int NOTIFIER_COLLISION = 14;
 
     // Schluesselwoerter fuer den Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
-    public static final String NOTIFIER_STARTED = "game_started";
 
     // Tag fuer Fragment
     public static final String FRAGMENT_TAG = "difficulty_fragment";

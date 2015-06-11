@@ -81,8 +81,12 @@ public class GPSingleSurfaceView extends SurfaceView implements Runnable{
             }
             strawberry.drawBerry();
             snake.moveSnake(activity.getDirection());
-            snake.checkCollisionBerryFirstPlayer(strawberry);
-            if (snake.checkCollisionSnake()) {
+            if(snake.checkCollisionBerry(strawberry)){
+                if(activity.isMusic()){
+                    activity.getBiteSound().start();
+                }
+            }
+            if (snake.checkCollisionWithOwnSnake()) {
                 activity.finish();
         }
             firstCall = false;

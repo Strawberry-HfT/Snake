@@ -626,6 +626,7 @@ public class BluetoothService {
             try {
                 // Positionen senden
                 mOutputStream.write(buffer);
+                mOutputStream.flush();
 
                 Log.d(TAG, "message or position sent to other device");
             } catch (IOException e) {

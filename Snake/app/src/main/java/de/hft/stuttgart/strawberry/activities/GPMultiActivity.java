@@ -478,10 +478,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
             String fertig = stringBuffer.toString();
             byte[]byteFertig = fertig.getBytes();
-            mBtService.write(byteFertig);
 
-            // string buffer zuruecksetzen
-            mOutStringBuffer.setLength(0);
+            mBtService.write(byteFertig);
         }
     }
 
@@ -613,19 +611,20 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
                             // 2 PLAYER
                             case Constants.NOTIFIER_FIRST_BERRY:
+                                // Firstcall Ändern
+                                multiView.setFirstCall(false);
                                 String[] split1 = wert.split(":");
                                 Point point = new Point(Integer.parseInt(split1[0]),Integer.parseInt(split1[1]));
                                 // Sendet die Position der ersten Beere
                                 multiView.getStrawberry().setBerryPosition(point);
                                 // Zeichnet die erste Beere beim 2. Spieler
                                 multiView.getStrawberry().drawBerry();
-                                // Firstcall Ändern
-                                multiView.setFirstCall(false);
                                 Toast.makeText(GPMultiActivity.this,"Senden der ersten Beere angekommen",Toast.LENGTH_SHORT).show();
                                 break;
 
                             // BEIDE
                             case Constants.NOTIFIER_BERRY_HIT:
+                                multiView.setFirstCall(false);
                                 String[] split2 = wert.split(":");
                                 Point point2 = new Point(Integer.parseInt(split2[0]),Integer.parseInt(split2[1]));
                                 multiView.getStrawberry().setBerryPosition(point2);
@@ -640,8 +639,11 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                                     String[] split4 = points.split(":");
                                     snakeTwo.add(new Point(Integer.valueOf(split4[0]),Integer.valueOf(split4[1])));
                                 }
-
                                 multiView.getSnake().setPositionSecond(snakeTwo);
+                                break;
+                            case Constants.NOTIFIER_COLLISION:
+                                Toast.makeText(GPMultiActivity.this,"Sie haben Gewonnen! :)", Toast.LENGTH_SHORT).show();
+                                onCollison();
                                 break;
                         }
                     break;
@@ -657,87 +659,6 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                     Toast.makeText(GPMultiActivity.this, msg.getData().getString(Constants.TOAST),
                             Toast.LENGTH_SHORT).show();
                     break;
-
-                // TODO Ich teste hier, ob die Postion der anderen Schlange ankommt
-                case Constants.POSITION_READ:
-
-                    // Streams
-                    ByteArrayInputStream bais = new ByteArrayInputStream(recievedPosByteArray);
-                    DataInputStream dIn = new DataInputStream(bais);
-
-                    // empfangene Position des dudes
-                    ArrayList<Point> dudesPositions = new ArrayList<>();
-                    Point position = null;
-                    int x = 0;
-                    int y = 0;
-
-                    // laenge der Bytes die nicht genutzt werden
-                    int unusedBytes;
-
-                    boolean isX = true;
-                    boolean gotBoth = false;
-
-                    try {
-                        // Indexgroesse die beim senden vom anderen gesetzt wird, damit wir wissen
-                        // wie viele bytes vom Array fuer diesen Durchgang relevant sind.
-                        int byteIndex = dIn.readByte();
-
-                        if (byteIndex > 0) {
-                            unusedBytes = Constants.STREAM_BUFFER_SIZE - byteIndex - 1;
-                        } else {
-                            unusedBytes = Constants.STREAM_BUFFER_SIZE;
-                        }
-
-                        // den Stream solange lesen, bis die schlange ausgelesen ist
-                        // (der buffer ist zur Zeit immer 1024, wird aber nicht voll ausgenutzt)
-                        while (dIn.available() > unusedBytes) {
-                            // aktueller Wert
-                            int currentByte = dIn.readByte();
-
-                            // damit werden die leeren nullen nicht mit aufgelistet
-//                            if (currentByte == 0) {
-//                                continue;
-//                            }
-
-                            // X, Y Positionen setzten
-                            if (isX) {
-                                x = currentByte;
-                                isX = false;
-                            } else {
-                                y = currentByte;
-                                isX = true;
-                                gotBoth = true;
-                            }
-
-                            // Point aus X, Y erstellen
-                            if (gotBoth) {
-                                position = new Point(x, y);
-                                dudesPositions.add(position);
-                                gotBoth = false;
-                            }
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "could not read sent position");
-                    }
-
-                    // TODO testweise gebe ich die Position als Toast aus
-                    if (dudesPositions.size() > 0) {
-                        StringBuilder positionListString = new StringBuilder();
-                        int i = 0;
-
-                        for (Point p : dudesPositions) {
-                            i++;
-                            if (i == dudesPositions.size()) {
-                                positionListString.append("Position " + i + "->  x:" + p.x + " y: " +p.y);
-                            } else {
-                                positionListString.append("Position " + i + "->  x:" + p.x + " y: " +p.y + "\n");
-                            }
-                        }
-                        Toast.makeText(GPMultiActivity.this, positionListString, Toast.LENGTH_LONG).show();
-                    }
-                    break;
-                case Constants.LEVEL_SPEED:
-
             }
         }
     };
@@ -788,6 +709,11 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
                 }
             }
         });
+    }
+
+    public void onCollison(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     /*

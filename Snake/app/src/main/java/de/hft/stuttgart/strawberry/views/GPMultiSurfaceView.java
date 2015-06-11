@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -30,44 +31,36 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 
     // Activity
     GPMultiActivity activity;
-
+    // Schwierigkeit
+    int difficulty;
+    // Fuer SurfaceView
+    SurfaceHolder surfaceHolder;
+    Thread thread = null;
+    boolean isRunning = false;
     // Bild f�r die Beere
     private Bitmap berryBitmap;
     private Bitmap snakeBitmapFirst;
     private Bitmap snakeBitmapSecond;
     private Bitmap backgroundBitmap;
-
     // Spielobjekte
     private Snake snake;
     private Strawberry strawberry;
-
     // Groesse der Fliese, wird berechnet
     private int tTileSize;
-
     // Rand auserhalbt
     private int tXOffset;
     private int tYOffset;
-
     // Haelt die Positon des Bitmaps
     private int[][] tTileGrid;
-
     // Paint fuer die Fliesen
     private Paint tPaint = new Paint();
 
-    // Schwierigkeit
-    int difficulty;
-
-    // Fuer SurfaceView
-    SurfaceHolder surfaceHolder;
-    Thread thread = null;
-    boolean isRunning = false;
-
     // Constructor
-    public GPMultiSurfaceView(Context context, long startTime){
+    public GPMultiSurfaceView(Context context, long startTime) {
         super(context);
 
         // Holt Activity in die View
-        activity = (GPMultiActivity)context;
+        activity = (GPMultiActivity) context;
 
         // Zweidimensionales Array mit der Anzahl der X und X Fliesen
         tTileGrid = new int[Constants.XTILE_COUNT][Constants.YTILE_COUNT];
@@ -84,19 +77,19 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     @Override
     public void run() {
         Log.d(TAG, "start drawing thread");
-        while(isRunning) {
+        while (isRunning) {
             if (!surfaceHolder.getSurface().isValid()) {
                 continue;
             }
             Canvas canvas = surfaceHolder.lockCanvas();
 
             // Zeichnet die Beere, aber nicht beim ersten Durchgang
-            if(!firstCall){
+            if (!firstCall) {
                 strawberry.drawBerry();
             }
 
             // Beim ersten Durchlauf erzeugt Player 1 die Beere und sendet sie an 2.Player
-            if(activity.isFirstPlayer() && firstCall){
+            if (activity.isFirstPlayer() && firstCall) {
                 firstCall = false;
                 // Erstellt die Positoin der ersten Beere
                 strawberry.createBerryPosition();
@@ -106,50 +99,65 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                 Point berryPosition = strawberry.getBerryPosition();
                 // Sendet die Beere
                 StringBuffer sB = new StringBuffer();
-                sB.append(berryPosition.x+":");
+                sB.append(berryPosition.x + ":");
                 sB.append(berryPosition.y);
-                activity.sendNotification(Constants.NOTIFIER_FIRST_BERRY, sB.toString());
+                String send = sB.toString();
+                activity.sendNotification(Constants.NOTIFIER_FIRST_BERRY, send);
+                // Schickt den Thread schlafen, damit der Outputstream Zeit zum senden hat.
+                try {
+                    Thread.sleep(difficulty);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             // Bei einer Collision wird die Beere neu erzeugt und an anderen Spieler gesendet
-            if(snake.checkCollisionBerrySecondPlayer(strawberry)){
+            if (snake.checkCollisionBerrySecondPlayer(strawberry)) {
                 // Aktualisiert die Positon der Beere
                 strawberry.createBerryPosition();
                 // Holt den Point
                 Point berryPosition = strawberry.getBerryPosition();
                 // Senden
                 StringBuffer sB = new StringBuffer();
-                sB.append(berryPosition.x+":");
+                sB.append(berryPosition.x + ":");
                 sB.append(berryPosition.y);
-                activity.sendNotification(Constants.NOTIFIER_BERRY_HIT,sB.toString());
+                activity.sendNotification(Constants.NOTIFIER_BERRY_HIT, sB.toString());
             }
 
+            // Bewegt die Schlange
             snake.moveSnake(activity.getDirection());
 
             // Sende Schlange an den Anderen Player
             StringBuffer sB2 = new StringBuffer();
             ArrayList<Point> position = this.snake.getPositionFirst();
-            for (int i = 0; i < position.size(); i++){
-                sB2.append(position.get(i).x+":");
-                sB2.append(position.get(i).y+",");
+            for (int i = 0; i < position.size(); i++) {
+                sB2.append(position.get(i).x + ":");
+                sB2.append(position.get(i).y + ",");
             }
-            activity.sendNotification(Constants.NOTIFIER_SNAKE,sB2.toString());
+            activity.sendNotification(Constants.NOTIFIER_SNAKE, sB2.toString());
 
-
-            if (snake.checkCollisionSnake()) {
-                activity.finish();
+            // Prüft ob Schlange kollidiert
+            if (snake.checkCollisionWithOwnSnake() || snake.checkCollisionWithSecondSnake()) {
+                activity.sendNotification(Constants.NOTIFIER_COLLISION, "Gewonnen");
+                try {
+                    Thread.sleep(difficulty);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                activity.onCollison();
             }
 
             for (int x = 0; x < Constants.XTILE_COUNT; x += 1) {
                 // Solange y kleiner als Anzahl der Fliesen vertikal
                 for (int y = 0; y < Constants.YTILE_COUNT; y += 1) {
-                    if(tTileGrid[x][y] == 0){
+                    if (tTileGrid[x][y] == 0) {
                         // Zeichnet die Bitmaps, Rand + Fliesengr��e * anzahl der Flie�en in x oder y-Richtung
                         canvas.drawBitmap(this.backgroundBitmap,
                                 tXOffset + x * tTileSize,
                                 tYOffset + y * tTileSize,
                                 tPaint);
-                    }if( tTileGrid[x][y] == 2){
+                    }
+                    if (tTileGrid[x][y] == 2) {
                         // Wenn 2 dann Schlangenelement
                         canvas.drawBitmap(this.snakeBitmapFirst,
                                 tXOffset + x * tTileSize,
@@ -157,7 +165,8 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                                 tPaint);
                         // Setzt Wert direkt nach dem Zeichnen wieder auf 0
                         tTileGrid[x][y] = 0;
-                    } if( tTileGrid[x][y] == 3){
+                    }
+                    if (tTileGrid[x][y] == 3) {
                         // Wenn 2 dann Schlangenelement
                         canvas.drawBitmap(this.snakeBitmapSecond,
                                 tXOffset + x * tTileSize,
@@ -165,7 +174,8 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                                 tPaint);
                         // Setzt Wert direkt nach dem Zeichnen wieder auf 0
                         tTileGrid[x][y] = 0;
-                    }if (tTileGrid[x][y] == 1){
+                    }
+                    if (tTileGrid[x][y] == 1) {
                         // Wenn 1 dann Beere
                         canvas.drawBitmap(this.berryBitmap,
                                 tXOffset + x * tTileSize,
@@ -177,7 +187,6 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
                 }
             }
 
-
             surfaceHolder.unlockCanvasAndPost(canvas);
             try {
                 Thread.sleep(difficulty);
@@ -188,9 +197,9 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     }
 
     // Wird von der Activity aufgerufen, wenn Pause gedr�ckt wird, um den Thread zu stoppen
-    public void pause(){
+    public void pause() {
         this.isRunning = false;
-        while(true){
+        while (true) {
             try {
                 thread.join();
             } catch (InterruptedException e) {
@@ -202,7 +211,7 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     }
 
     // Wird von der Activity aufgerufen, wenn das Spiel gestartet wird. Startet den Thread
-    public void resume(){
+    public void resume() {
         Log.d(TAG, "resume()");
 //        activity.sendPosition();
         isRunning = true;
@@ -217,14 +226,14 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         Log.d(TAG, "invoke onSizeChanged()");
         // Berechnet die m�gliche Gr��e einer Fliese in x-Richtung
-        int xPxSize = (int) Math.floor(w/Constants.XTILE_COUNT);
+        int xPxSize = (int) Math.floor(w / Constants.XTILE_COUNT);
         // Berechnet die m�gliche Gr��e einer Fliese in y-Richtung
-        int yPxSize = (int) Math.floor(h/Constants.YTILE_COUNT);
+        int yPxSize = (int) Math.floor(h / Constants.YTILE_COUNT);
 
         // Der kleinere Wert wird als Fliesengr��e gew�hlt
-        if(xPxSize > yPxSize){
+        if (xPxSize > yPxSize) {
             this.tTileSize = yPxSize;
-        } else{
+        } else {
             this.tTileSize = xPxSize;
         }
 
@@ -242,12 +251,12 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
     // Initialisiert die Bitmaps zum Zeichen
     private void initBitmaps() {
         // Schlange 1
-        this.snakeBitmapFirst =Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
+        this.snakeBitmapFirst = Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
         snakeBitmapFirst.eraseColor(Color.BLUE);
 
         // Schlange 2
-        this.snakeBitmapSecond =Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
-        snakeBitmapSecond.eraseColor(Color.YELLOW);
+        this.snakeBitmapSecond = Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);
+        snakeBitmapSecond.eraseColor(Color.GRAY);
 
         // Beere
         this.berryBitmap = Bitmap.createBitmap(tTileSize, tTileSize, Bitmap.Config.ARGB_8888);

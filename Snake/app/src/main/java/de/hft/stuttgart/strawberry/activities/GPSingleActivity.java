@@ -56,6 +56,7 @@ public class GPSingleActivity extends Activity {
     // Musik
     private boolean music = false;
     private MediaPlayer mediaPlayer;
+    private MediaPlayer biteSound;
 
 
     // Beim Erstellen der Activity
@@ -106,6 +107,7 @@ public class GPSingleActivity extends Activity {
     private void initMusicSpeedByLevel() {
         if (music) {
             mediaPlayer = new MediaPlayer();
+            biteSound = new MediaPlayer();
         }
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -115,6 +117,9 @@ public class GPSingleActivity extends Activity {
             difficulty = Constants.SPEED_MEDIUM;
             Log.d(TAG, "No Difficulty Selected");
         }
+
+        // Bite Sound laden
+        biteSound = MediaPlayer.create(this, R.raw.bite);
 
         switch (difficulty) {
             case Constants.SPEED_EASY:
@@ -191,5 +196,11 @@ public class GPSingleActivity extends Activity {
         return selectedDifficulty;
     }
 
+    public MediaPlayer getBiteSound() {
+        return biteSound;
+    }
 
+    public boolean isMusic() {
+        return music;
+    }
 }
