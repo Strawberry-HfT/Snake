@@ -138,6 +138,10 @@ public class GPMultiSurfaceView extends SurfaceView implements Runnable {
 
             // Prüft ob Schlange kollidiert
             if (snake.checkCollisionWithOwnSnake() || snake.checkCollisionWithSecondSnake()) {
+                if(activity.isMusic()){
+                    activity.getBiteSound().start();
+                }
+
                 activity.sendNotification(Constants.NOTIFIER_COLLISION, "Gewonnen");
                 try {
                     Thread.sleep(difficulty);

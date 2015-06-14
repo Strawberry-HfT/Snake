@@ -102,8 +102,9 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private boolean lenkungSensor = false;
 
     // Musik
-    private boolean music = false;
+    private boolean music = true;
     private MediaPlayer mediaPlayer;
+    private MediaPlayer biteSound;
 
     // gesetze Spielgeschwindigkeit
     private int levelSpeed;
@@ -166,7 +167,7 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
             }
             // Sichtbarkeit ueberpruefen
             if (!deviceSelected) {
-//                ensureDiscoverable();//TODO zu testzwecken auskommentiert
+                ensureDiscoverable();//TODO zu testzwecken auskommentiert
             }
         }
     }
@@ -359,6 +360,8 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
     private void initMusicSpeedByLevel() {
         if (music) {
             mediaPlayer = new MediaPlayer();
+            biteSound = new MediaPlayer();
+            biteSound = MediaPlayer.create(this, R.raw.bite);
         }
 
         switch (levelSpeed) {
@@ -857,5 +860,13 @@ public class GPMultiActivity extends Activity implements DialogInterface.OnDismi
 
     public int getLocator() {
         return locator;
+    }
+
+    public boolean isMusic() {
+        return music;
+    }
+
+    public MediaPlayer getBiteSound() {
+        return biteSound;
     }
 }

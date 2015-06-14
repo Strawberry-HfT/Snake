@@ -51,10 +51,10 @@ public class GPSingleActivity extends Activity {
     Lenkung der Schlange, wenn true dann Rotationssensor
     Initialwert = false
     */
-    private boolean lenkungSensor = false;
+    private boolean lenkungSensor = true;
 
     // Musik
-    private boolean music = false;
+    private boolean music = true;
     private MediaPlayer mediaPlayer;
     private MediaPlayer biteSound;
 
